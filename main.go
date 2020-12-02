@@ -40,11 +40,20 @@ func main() {
 	flag.BoolVar(&partB, "b", false, "Run part B")
 	flag.Parse()
 
+	dayFn, ok := days[day]
+	if !ok {
+		fmt.Printf("Generating a stub for day %d\n", day)
+		generateStub(day)
+		return
+	}
+
 	input := getInput(day)
+
 	start := time.Now()
-	output := days[day](partB, input)
+	output := dayFn(partB, input)
 	runTime := time.Since(start)
 	fmt.Printf("Finished in %s\n", runTime)
+
 	submit(day, partB, output)
 }
 
@@ -203,5 +212,59 @@ func submit(day int, partB bool, v interface{}) {
 		if _, err := f.WriteString(key + answer + "\n"); err != nil {
 			panic(err)
 		}
+	}
+}
+
+func generateStub(day int) {
+	code, err := os.Create(fmt.Sprintf("day%02d.go", day))
+	if err != nil {
+		panic(err)
+	}
+	defer code.Close()
+
+	test, err := os.Create(fmt.Sprintf("day%02d_test.go", day))
+	if err != nil {
+		panic(err)
+	}
+	defer code.Close()
+
+	if _, err := fmt.Fprintf(code, `package main
+
+var _ = declareDay(%[1]d, day%02[1]d)
+
+func day%02[1]d(partB bool, inputUntyped interface{}) interface{} {
+	panic("no solution")
+}
+`, day); err != nil {
+		panic(err)
+	}
+
+	if _, err := fmt.Fprintf(test, `package main
+
+import (
+	"reflect"
+	"testing"
+)
+
+func Test_day%02[1]d(t *testing.T) {
+	type args struct {
+		partB        bool
+		inputUntyped interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want interface{}
+	}{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := day%02[1]d(tt.args.partB, tt.args.inputUntyped); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("day%02[1]d() = %[2]s, want %[2]s", got, tt.want)
+			}
+		})
+	}
+}
+`, day, "%v"); err != nil {
+		panic(err)
 	}
 }
