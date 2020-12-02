@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -204,15 +205,21 @@ func submit(day int, partB bool, v interface{}) {
 	}
 	defer resp.Body.Close()
 
-	if _, err := io.Copy(os.Stderr, resp.Body); err != nil {
-		panic(err)
-	}
-
 	if resp.StatusCode == http.StatusOK {
+		fmt.Println("Correct")
 		if _, err := f.WriteString(key + answer + "\n"); err != nil {
 			panic(err)
 		}
+	} else {
+		fmt.Println("Incorrect")
 	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(string(regexp.MustCompile("<p[^>]*>(.*)</p>").FindSubmatch(body)[1]))
 }
 
 func generateStub(day int) {
