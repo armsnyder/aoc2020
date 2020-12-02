@@ -1,35 +1,23 @@
 package main
 
-import (
-	. "github.com/armsnyder/aoc2020/common"
-)
+var _ = declareDay(1, day01)
 
-func main() {
-	AssertEqual(514579, day01(false, 1721, 979, 366, 299, 675, 1456))
-	AssertEqual(241861950, day01(true, 1721, 979, 366, 299, 675, 1456))
-
-	var puzzleInput []int
-	partB := Bootstrap(1, &puzzleInput)
-
-	Submit(1, partB, day01(partB, puzzleInput...))
-}
-
-func day01(partB bool, ints ...int) int {
-	for i := 0; i < len(ints); i++ {
-		for j := i + 1; j < len(ints); j++ {
+func day01(partB bool, inputUntyped interface{}) interface{} {
+	input := inputUntyped.([]int)
+	for i := 0; i < len(input); i++ {
+		for j := i + 1; j < len(input); j++ {
 			if partB {
-				for k := j + 1; k < len(ints); k++ {
-					if ints[i]+ints[j]+ints[k] == 2020 {
-						return ints[i] * ints[j] * ints[k]
+				for k := j + 1; k < len(input); k++ {
+					if input[i]+input[j]+input[k] == 2020 {
+						return input[i] * input[j] * input[k]
 					}
 				}
 			} else {
-				if ints[i]+ints[j] == 2020 {
-					return ints[i] * ints[j]
+				if input[i]+input[j] == 2020 {
+					return input[i] * input[j]
 				}
 			}
 		}
 	}
-
 	panic("no solution")
 }
