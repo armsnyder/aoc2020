@@ -9,3 +9,4 @@ $ go run . [-d day] [-b]
 ```
 
 Requires a `session.txt` file containing a session token, for pulling puzzle input and submitting answers.
+(Inputs and answers are cached.)
