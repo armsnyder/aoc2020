@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-type dayFn func(partB bool, inputUntyped interface{}) interface{}
+type dayFn func(part2 bool, inputUntyped interface{}) interface{}
 
 var days = make(map[int]dayFn)
 
@@ -35,10 +35,10 @@ func main() {
 
 	var (
 		day   int
-		partB bool
+		part2 bool
 	)
 	flag.IntVar(&day, "d", time.Now().In(easternTime).Day(), "Day of the month")
-	flag.BoolVar(&partB, "b", false, "Run part B")
+	flag.BoolVar(&part2, "2", false, "Run part 2")
 	flag.Parse()
 
 	dayFn, ok := days[day]
@@ -51,11 +51,11 @@ func main() {
 	input := getInput(day)
 
 	start := time.Now()
-	output := dayFn(partB, input)
+	output := dayFn(part2, input)
 	runTime := time.Since(start)
 	fmt.Printf("Finished in %s\n", runTime)
 
-	submit(day, partB, output)
+	submit(day, part2, output)
 }
 
 func getInput(day int) interface{} {
@@ -141,7 +141,7 @@ func getInput(day int) interface{} {
 	return input
 }
 
-func submit(day int, partB bool, v interface{}) {
+func submit(day int, part2 bool, v interface{}) {
 	answer := fmt.Sprint(v)
 	fmt.Println("Answer:", answer)
 
@@ -152,7 +152,7 @@ func submit(day int, partB bool, v interface{}) {
 	defer solutions.Close()
 
 	level := "1"
-	if partB {
+	if part2 {
 		level = "2"
 	}
 	key := fmt.Sprintf("%02d.%s=", day, level)
@@ -244,7 +244,7 @@ func generateStub(day int) {
 
 var _ = declareDay(%[1]d, day%02[1]d)
 
-func day%02[1]d(partB bool, inputUntyped interface{}) interface{} {
+func day%02[1]d(part2 bool, inputUntyped interface{}) interface{} {
 	panic("no solution")
 }
 `, day); err != nil {
@@ -260,7 +260,7 @@ import (
 
 func Test_day%02[1]d(t *testing.T) {
 	type args struct {
-		partB        bool
+		part2        bool
 		inputUntyped interface{}
 	}
 	tests := []struct {
@@ -270,8 +270,8 @@ func Test_day%02[1]d(t *testing.T) {
 	}{}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := day%02[1]d(tt.args.partB, tt.args.inputUntyped); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("day%02[1]d() = %[2]s, want %[2]s", got, tt.want)
+			if got := day%02[1]d(tt.args.part2, tt.args.inputUntyped); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("day%02[1]d(%[2]s, ...) = %[2]s, want %[2]s", tt.args.part2, got, tt.want)
 			}
 		})
 	}
