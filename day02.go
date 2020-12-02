@@ -30,35 +30,17 @@ func day02(part2 bool, inputUntyped interface{}) interface{} {
 }
 
 func day02Parse(line string) (min, max int, letter string, password string) {
-	var sb strings.Builder
-	var i int
-	for i < len(line) {
-		if line[i] == '-' {
-			i++
-			break
+	fields := strings.FieldsFunc(line, func(r rune) bool {
+		switch r {
+		case '-', ' ', ':':
+			return true
+		default:
+			return false
 		}
-		sb.WriteByte(line[i])
-		i++
-	}
-	var err error
-	min, err = strconv.Atoi(sb.String())
-	if err != nil {
-		panic(err)
-	}
-	sb.Reset()
-	for i < len(line) {
-		if line[i] == ' ' {
-			i++
-			break
-		}
-		sb.WriteByte(line[i])
-		i++
-	}
-	max, err = strconv.Atoi(sb.String())
-	if err != nil {
-		panic(err)
-	}
-	letter = string(line[i])
-	password = line[i+3:]
+	})
+	min, _ = strconv.Atoi(fields[0])
+	max, _ = strconv.Atoi(fields[1])
+	letter = fields[2]
+	password = fields[3]
 	return
 }
