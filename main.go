@@ -145,11 +145,11 @@ func submit(day int, partB bool, v interface{}) {
 	answer := fmt.Sprint(v)
 	fmt.Println("Answer:", answer)
 
-	f, err := os.OpenFile("solutions.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	solutions, err := os.OpenFile("solutions.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	defer solutions.Close()
 
 	level := "1"
 	if partB {
@@ -157,7 +157,7 @@ func submit(day int, partB bool, v interface{}) {
 	}
 	key := fmt.Sprintf("%02d.%s=", day, level)
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(solutions)
 	for scanner.Scan() {
 		if strings.HasPrefix(scanner.Text(), key) {
 			correctAnswer := strings.TrimPrefix(scanner.Text(), key)
@@ -205,13 +205,11 @@ func submit(day int, partB bool, v interface{}) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK {
-		fmt.Println("Correct")
-		if _, err := f.WriteString(key + answer + "\n"); err != nil {
+	if resp.StatusCode != http.StatusOK {
+		if _, err := io.Copy(os.Stderr, resp.Body); err != nil {
 			panic(err)
 		}
-	} else {
-		fmt.Println("Incorrect")
+		panic(resp.Status)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -219,7 +217,14 @@ func submit(day int, partB bool, v interface{}) {
 		panic(err)
 	}
 
-	fmt.Println(string(regexp.MustCompile("<p[^>]*>(.*)</p>").FindSubmatch(body)[1]))
+	message := string(regexp.MustCompile("<p[^>]*>(.*)</p>").FindSubmatch(body)[1])
+	fmt.Println(message)
+
+	if strings.Contains(message, "That's the right answer!") {
+		if _, err := solutions.WriteString(key + answer + "\n"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func generateStub(day int) {
