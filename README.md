@@ -4,7 +4,7 @@ My [Advent of Code 2020](https://adventofcode.com/2020) solutions.
 
 Usage:
 
-```
+```shell
 $ go run . [-d day] [-2]
 ```
 
