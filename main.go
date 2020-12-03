@@ -72,20 +72,7 @@ func getInput(day int) interface{} {
 		}
 		session = bytes.TrimSpace(session)
 
-		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://adventofcode.com/2020/day/%d/input", day), nil)
-		if err != nil {
-			panic(err)
-		}
-
-		req.AddCookie(&http.Cookie{
-			Name:  "session",
-			Value: string(session),
-		})
-
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			panic(err)
-		}
+		resp := makeAOCRequest(http.MethodGet, fmt.Sprintf("/2020/day/%d/input", day), "", nil)
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
@@ -173,36 +160,12 @@ func submit(day int, part2 bool, v interface{}) {
 
 	fmt.Println("Submitting...")
 
-	session, err := ioutil.ReadFile("session.txt")
-	if err != nil {
-		panic(err)
-	}
-	session = bytes.TrimSpace(session)
-
 	values := make(url.Values)
 	values.Set("answer", answer)
 	values.Set("level", level)
 
-	req, err := http.NewRequest(
-		http.MethodPost,
-		fmt.Sprintf("https://adventofcode.com/2020/day/%d/answer", day),
-		strings.NewReader(values.Encode()),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	req.Header.Set("content-type", "application/x-www-form-urlencoded")
-
-	req.AddCookie(&http.Cookie{
-		Name:  "session",
-		Value: string(session),
-	})
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		panic(err)
-	}
+	resp := makeAOCRequest(http.MethodPost, fmt.Sprintf("/2020/day/%d/answer", day),
+		"application/x-www-form-urlencoded", strings.NewReader(values.Encode()))
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -254,29 +217,52 @@ func day%02[1]d(part2 bool, inputUntyped interface{}) interface{} {
 	if _, err := fmt.Fprintf(test, `package main
 
 import (
-	"reflect"
 	"testing"
 )
 
 func Test_day%02[1]d(t *testing.T) {
-	type args struct {
-		part2        bool
-		inputUntyped interface{}
-	}
-	tests := []struct {
-		name string
-		args args
-		want interface{}
-	}{}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := day%02[1]d(tt.args.part2, tt.args.inputUntyped); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("day%02[1]d(%[2]s, ...) = %[2]s, want %[2]s", tt.args.part2, got, tt.want)
-			}
-		})
-	}
+	runDayTests(t, %[1]d, []dayTest{
+		{
+			input: nil,
+			want:  nil,
+		},
+		{
+			partB: true,
+			input: nil,
+			want:  nil,
+		},
+	})
 }
-`, day, "%v"); err != nil {
+`, day); err != nil {
 		panic(err)
 	}
+}
+
+func makeAOCRequest(method, path, contentType string, body io.Reader) *http.Response {
+	req, err := http.NewRequest(method, "https://adventofcode.com"+path, body)
+	if err != nil {
+		panic(err)
+	}
+
+	if contentType != "" {
+		req.Header.Set("content-type", contentType)
+	}
+
+	session, err := ioutil.ReadFile("session.txt")
+	if err != nil {
+		panic(err)
+	}
+	session = bytes.TrimSpace(session)
+
+	req.AddCookie(&http.Cookie{
+		Name:  "session",
+		Value: string(session),
+	})
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	return resp
 }

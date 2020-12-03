@@ -1,7 +1,9 @@
+default: fmt test
+
 test:
 	go test .
 
 fmt:
 	go run golang.org/x/tools/cmd/goimports -w .
 
-.PHONY: test fmt
+.PHONY: default test fmt
