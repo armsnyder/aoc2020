@@ -205,11 +205,9 @@ func generateStub(day int) {
 
 	if _, err := fmt.Fprintf(code, `package main
 
-var _ = declareDay(%[1]d, day%02[1]d)
-
-func day%02[1]d(part2 bool, inputUntyped interface{}) interface{} {
+var _ = declareDay(%d, func(part2 bool, inputUntyped interface{}) interface{} {
 	panic("no solution")
-}
+})
 `, day); err != nil {
 		panic(err)
 	}
@@ -227,7 +225,7 @@ func Test_day%02[1]d(t *testing.T) {
 			want:  nil,
 		},
 		{
-			partB: true,
+			part2: true,
 			input: nil,
 			want:  nil,
 		},

@@ -5,9 +5,7 @@ import (
 	"strings"
 )
 
-var _ = declareDay(2, day02)
-
-func day02(part2 bool, inputUntyped interface{}) interface{} {
+var _ = declareDay(2, func(part2 bool, inputUntyped interface{}) interface{} {
 	input := inputUntyped.([]string)
 	total := 0
 
@@ -27,7 +25,7 @@ func day02(part2 bool, inputUntyped interface{}) interface{} {
 	}
 
 	return total
-}
+})
 
 func day02Parse(line string) (min, max int, letter string, password string) {
 	fields := strings.FieldsFunc(line, func(r rune) bool {

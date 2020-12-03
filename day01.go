@@ -1,8 +1,6 @@
 package main
 
-var _ = declareDay(1, day01)
-
-func day01(partB bool, inputUntyped interface{}) interface{} {
+var _ = declareDay(1, func(partB bool, inputUntyped interface{}) interface{} {
 	input := inputUntyped.([]int)
 
 	var values [2020]bool
@@ -28,4 +26,4 @@ func day01(partB bool, inputUntyped interface{}) interface{} {
 	}
 
 	panic("no solution")
-}
+})
