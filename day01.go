@@ -1,7 +1,13 @@
 package main
 
-var _ = declareDay(1, func(partB bool, inputUntyped interface{}) interface{} {
-	input := inputUntyped.([]int)
+import (
+	"io"
+
+	"github.com/armsnyder/aoc2020/aocutil"
+)
+
+var _ = declareDay(1, func(partB bool, inputReader io.Reader) interface{} {
+	input := aocutil.ReadAllInts(inputReader)
 
 	var values [2020]bool
 	for _, value := range input {

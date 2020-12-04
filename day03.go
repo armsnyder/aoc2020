@@ -1,11 +1,19 @@
 package main
 
-var _ = declareDay(3, func(part2 bool, inputUntyped interface{}) interface{} {
-	input := inputUntyped.([]string)
+import (
+	"io"
 
-	slopes := [][2]int{{3, 1}}
+	"github.com/armsnyder/aoc2020/aocutil"
+)
+
+var _ = declareDay(3, func(part2 bool, inputReader io.Reader) interface{} {
+	input := aocutil.ReadAllStrings(inputReader)
+
+	var slopes [][2]int
 	if part2 {
-		slopes = append(slopes, [][2]int{{1, 1}, {5, 1}, {7, 1}, {1, 2}}...)
+		slopes = [][2]int{{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}}
+	} else {
+		slopes = [][2]int{{3, 1}}
 	}
 
 	result := 1
