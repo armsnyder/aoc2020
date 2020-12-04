@@ -20,7 +20,9 @@ func GenerateStub(day int) {
 
 	if _, err := fmt.Fprintf(code, `package main
 
-var _ = declareDay(%d, func(part2 bool, inputUntyped interface{}) interface{} {
+import "io"
+
+var _ = declareDay(%d, func(part2 bool, inputReader io.Reader) interface{} {
 	panic("no solution")
 })
 `, day); err != nil {
