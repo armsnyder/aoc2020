@@ -41,11 +41,11 @@ func Test_day%02[1]d(t *testing.T) {
 			input: %[2]s%[2]s,
 			want:  nil,
 		},
-		{
-			part2: true,
-			input: %[2]s%[2]s,
-			want:  nil,
-		},
+		//{
+		//	part2: true,
+		//	input: %[2]s%[2]s,
+		//	want:  nil,
+		//},
 	})
 }
 `, day, "`"); err != nil {
