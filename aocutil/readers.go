@@ -14,7 +14,7 @@ func ReadAllInts(inputReader io.Reader) []int {
 	return result
 }
 
-func VisitInts(inputReader io.Reader, visitFn func(int)) {
+func VisitInts(inputReader io.Reader, visitFn func(v int)) {
 	VisitLines(inputReader, func(v string) {
 		if len(v) > 0 {
 			n, err := strconv.Atoi(v)
@@ -34,7 +34,7 @@ func ReadAllStrings(inputReader io.Reader) []string {
 	return result
 }
 
-func VisitStrings(inputReader io.Reader, visitFn func(string)) {
+func VisitStrings(inputReader io.Reader, visitFn func(v string)) {
 	VisitLines(inputReader, func(v string) {
 		if len(v) > 0 {
 			visitFn(v)
@@ -42,7 +42,22 @@ func VisitStrings(inputReader io.Reader, visitFn func(string)) {
 	})
 }
 
-func VisitLines(inputReader io.Reader, visitFn func(string)) {
+func VisitStringGroups(inputReader io.Reader, visitFn func(v []string)) {
+	var group []string
+	VisitLines(inputReader, func(v string) {
+		if len(v) > 0 {
+			group = append(group, v)
+		} else if len(group) > 0 {
+			visitFn(group)
+			group = nil
+		}
+	})
+	if len(group) > 0 {
+		visitFn(group)
+	}
+}
+
+func VisitLines(inputReader io.Reader, visitFn func(v string)) {
 	scanner := bufio.NewScanner(inputReader)
 	for scanner.Scan() {
 		visitFn(scanner.Text())

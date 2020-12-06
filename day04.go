@@ -81,26 +81,14 @@ func day04PassportFieldValidators() map[string]func(string) bool {
 }
 
 func day04VisitPassports(inputReader io.Reader, visitFn func(map[string]string)) {
-	passport := make(map[string]string)
-
-	flush := func() {
-		if len(passport) > 0 {
-			visitFn(passport)
-			passport = make(map[string]string)
+	aocutil.VisitStringGroups(inputReader, func(passportRaw []string) {
+		passport := make(map[string]string)
+		for _, line := range passportRaw {
+			for _, keyPair := range strings.Fields(line) {
+				split := strings.Split(keyPair, ":")
+				passport[split[0]] = split[1]
+			}
 		}
-	}
-
-	aocutil.VisitLines(inputReader, func(s string) {
-		if len(s) == 0 {
-			flush()
-			return
-		}
-
-		for _, keyPair := range strings.Fields(s) {
-			split := strings.Split(keyPair, ":")
-			passport[split[0]] = split[1]
-		}
+		visitFn(passport)
 	})
-
-	flush()
 }
