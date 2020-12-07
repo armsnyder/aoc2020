@@ -3,14 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
-	"os"
+	"io/ioutil"
 	"time"
 
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-type dayFn func(part2 bool, inputReader io.Reader) interface{}
+type dayFn func(part2 bool, rawInput []byte) interface{}
 
 var days = make(map[int]dayFn)
 
@@ -44,17 +43,16 @@ func main() {
 		return
 	}
 
-	var input io.ReadCloser
+	var input []byte
 	if inputFile != "" {
 		var err error
-		input, err = os.Open(inputFile)
+		input, err = ioutil.ReadFile(inputFile)
 		if err != nil {
 			panic(err)
 		}
 	} else {
 		input = aocutil.GetInput(day)
 	}
-	defer input.Close()
 
 	start := time.Now()
 	output := dayFn(part2, input)

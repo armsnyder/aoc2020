@@ -1,18 +1,18 @@
 package main
 
 import (
-	"io"
 	"strconv"
 	"strings"
 
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(2, func(part2 bool, inputReader io.Reader) interface{} {
+var _ = declareDay(2, func(part2 bool, rawInput []byte) interface{} {
 	total := 0
+	lines := aocutil.Strings(rawInput)
 
-	aocutil.VisitStrings(inputReader, func(s string) {
-		min, max, letter, password := day02Parse(s)
+	for _, line := range lines {
+		min, max, letter, password := day02Parse(line)
 
 		if part2 {
 			if (password[min-1] == letter[0]) != (password[max-1] == letter[0]) {
@@ -24,7 +24,7 @@ var _ = declareDay(2, func(part2 bool, inputReader io.Reader) interface{} {
 				total++
 			}
 		}
-	})
+	}
 
 	return total
 })

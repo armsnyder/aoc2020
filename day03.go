@@ -1,13 +1,11 @@
 package main
 
 import (
-	"io"
-
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(3, func(part2 bool, inputReader io.Reader) interface{} {
-	input := aocutil.ReadAllStrings(inputReader)
+var _ = declareDay(3, func(part2 bool, rawInput []byte) interface{} {
+	input := aocutil.Strings(rawInput)
 
 	var slopes [][2]int
 	if part2 {

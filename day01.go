@@ -1,13 +1,11 @@
 package main
 
 import (
-	"io"
-
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(1, func(partB bool, inputReader io.Reader) interface{} {
-	input := aocutil.ReadAllInts(inputReader)
+var _ = declareDay(1, func(partB bool, rawInput []byte) interface{} {
+	input := aocutil.Ints(rawInput)
 
 	var values [2020]bool
 	for _, value := range input {

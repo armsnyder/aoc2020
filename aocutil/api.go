@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func GetInput(day int) io.ReadCloser {
+func GetInput(day int) []byte {
 	if err := os.MkdirAll("inputs", 0755); err != nil {
 		panic(err)
 	}
@@ -47,12 +47,12 @@ func GetInput(day int) io.ReadCloser {
 		}
 	}
 
-	file, err := os.Open(puzzleInputFilename)
+	rawInput, err := ioutil.ReadFile(puzzleInputFilename)
 	if err != nil {
 		panic(err)
 	}
 
-	return file
+	return rawInput
 }
 
 func Submit(day int, part2 bool, v interface{}) {

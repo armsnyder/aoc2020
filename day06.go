@@ -1,14 +1,13 @@
 package main
 
 import (
-	"io"
-
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(6, func(part2 bool, inputReader io.Reader) interface{} {
+var _ = declareDay(6, func(part2 bool, rawInput []byte) interface{} {
 	total := 0
-	aocutil.VisitStringGroups(inputReader, func(passengers []string) {
+	passengerGroups := aocutil.StringGroups(rawInput)
+	for _, passengers := range passengerGroups {
 		allYesAnswers := make(map[rune]int)
 		for _, passengerAnswers := range passengers {
 			for _, ch := range passengerAnswers {
@@ -20,6 +19,6 @@ var _ = declareDay(6, func(part2 bool, inputReader io.Reader) interface{} {
 				total++
 			}
 		}
-	})
+	}
 	return total
 })

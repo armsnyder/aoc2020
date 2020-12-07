@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -9,23 +8,25 @@ import (
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(4, func(part2 bool, inputReader io.Reader) interface{} {
+var _ = declareDay(4, func(part2 bool, rawInput []byte) interface{} {
 	fieldValidators := day04PassportFieldValidators()
 	validPassports := 0
+	passports := day04Passports(rawInput)
 
-	day04VisitPassports(inputReader, func(passport map[string]string) {
+outer:
+	for _, passport := range passports {
 		for field, check := range fieldValidators {
 			if part2 {
 				if !check(passport[field]) {
-					return
+					continue outer
 				}
 			} else if _, ok := passport[field]; !ok {
-				return
+				continue outer
 			}
 		}
 
 		validPassports++
-	})
+	}
 
 	return validPassports
 })
@@ -80,15 +81,18 @@ func day04PassportFieldValidators() map[string]func(string) bool {
 	}
 }
 
-func day04VisitPassports(inputReader io.Reader, visitFn func(map[string]string)) {
-	aocutil.VisitStringGroups(inputReader, func(passportRaw []string) {
+func day04Passports(rawInput []byte) []map[string]string {
+	groups := aocutil.StringGroups(rawInput)
+	var passports []map[string]string
+	for _, group := range groups {
 		passport := make(map[string]string)
-		for _, line := range passportRaw {
+		for _, line := range group {
 			for _, keyPair := range strings.Fields(line) {
 				split := strings.Split(keyPair, ":")
 				passport[split[0]] = split[1]
 			}
 		}
-		visitFn(passport)
-	})
+		passports = append(passports, passport)
+	}
+	return passports
 }

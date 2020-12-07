@@ -1,39 +1,40 @@
 package main
 
 import (
-	"io"
 	"sort"
 
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(5, func(part2 bool, inputReader io.Reader) interface{} {
+var _ = declareDay(5, func(part2 bool, rawInput []byte) interface{} {
 	if part2 {
-		return day05Part2(inputReader)
+		return day05Part2(rawInput)
 	}
-	return day05Part1(inputReader)
+	return day05Part1(rawInput)
 })
 
-func day05Part1(inputReader io.Reader) interface{} {
+func day05Part1(rawInput []byte) interface{} {
 	max := -1
-	aocutil.VisitStrings(inputReader, func(s string) {
-		seatID := day05GetSeatID(s)
+	boardingPasses := aocutil.Strings(rawInput)
+	for _, boardingPass := range boardingPasses {
+		seatID := day05GetSeatID(boardingPass)
 		if seatID > max {
 			max = seatID
 		}
-	})
+	}
 	return max
 }
 
-func day05Part2(inputReader io.Reader) interface{} {
-	var seats []int
-	aocutil.VisitStrings(inputReader, func(s string) {
-		seats = append(seats, day05GetSeatID(s))
-	})
-	sort.Ints(seats)
-	for i := 0; i < len(seats)-1; i++ {
-		if seats[i+1]-seats[i] != 1 {
-			return seats[i] + 1
+func day05Part2(rawInput []byte) interface{} {
+	var seatIDs []int
+	boardingPasses := aocutil.Strings(rawInput)
+	for _, boardingPass := range boardingPasses {
+		seatIDs = append(seatIDs, day05GetSeatID(boardingPass))
+	}
+	sort.Ints(seatIDs)
+	for i := 0; i < len(seatIDs)-1; i++ {
+		if seatIDs[i+1]-seatIDs[i] != 1 {
+			return seatIDs[i] + 1
 		}
 	}
 	panic("no solution")

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"regexp"
 	"strconv"
 	"strings"
@@ -9,26 +8,29 @@ import (
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-var _ = declareDay(7, func(part2 bool, inputReader io.Reader) interface{} {
+var _ = declareDay(7, func(part2 bool, rawInput []byte) interface{} {
 	myBag := "shiny gold"
 
 	if part2 {
-		tree := day07CreateBagTree(inputReader)
+		tree := day07CreateBagTree(rawInput)
 		memo := make(map[string]int)
 		return day07SumNestedBagsInBag(myBag, tree, memo)
 	}
 
-	tree := day07CreateInverseBagTreeIgnoreQuantities(inputReader)
+	tree := day07CreateInverseBagTreeIgnoreQuantities(rawInput)
 	return day07SumBagsThatCanContain(myBag, tree)
 })
 
-func day07CreateInverseBagTreeIgnoreQuantities(inputReader io.Reader) map[string][]string {
+func day07CreateInverseBagTreeIgnoreQuantities(rawInput []byte) map[string][]string {
 	tree := make(map[string][]string)
-	day07VisitBagRules(inputReader, func(containerBag string, contents []day07BagQuantity) {
-		for _, bagQuantity := range contents {
-			tree[bagQuantity.bag] = append(tree[bagQuantity.bag], containerBag)
+	bagRules := day07GetBagRules(rawInput)
+
+	for _, bagRule := range bagRules {
+		for _, bagQuantity := range bagRule.contents {
+			tree[bagQuantity.bag] = append(tree[bagQuantity.bag], bagRule.containerBag)
 		}
-	})
+	}
+
 	return tree
 }
 
@@ -59,11 +61,12 @@ type day07BagQuantity struct {
 	quantity int
 }
 
-func day07CreateBagTree(inputReader io.Reader) map[string][]day07BagQuantity {
+func day07CreateBagTree(rawInput []byte) map[string][]day07BagQuantity {
 	tree := make(map[string][]day07BagQuantity)
-	day07VisitBagRules(inputReader, func(containerBag string, contents []day07BagQuantity) {
-		tree[containerBag] = contents
-	})
+	bagRules := day07GetBagRules(rawInput)
+	for _, bagRule := range bagRules {
+		tree[bagRule.containerBag] = bagRule.contents
+	}
 	return tree
 }
 
@@ -87,23 +90,31 @@ func day07SumNestedBagsInBag(bag string, tree map[string][]day07BagQuantity, mem
 	return total
 }
 
-func day07VisitBagRules(inputReader io.Reader, visitFn func(containerBag string, contents []day07BagQuantity)) {
+type day07BagRule struct {
+	containerBag string
+	contents     []day07BagQuantity
+}
+
+func day07GetBagRules(rawInput []byte) []day07BagRule {
 	contentsPattern := regexp.MustCompile(`(\d+) (\w+ \w+)`)
+	var bagRules []day07BagRule
+	rawBagRules := aocutil.Strings(rawInput)
 
-	aocutil.VisitStrings(inputReader, func(v string) {
-		containerBag := strings.Join(strings.Fields(v)[:2], " ")
-		contentsSearch := strings.Split(v, "contain")[1]
+	for _, rawBagRule := range rawBagRules {
+		var bagRule day07BagRule
+		bagRule.containerBag = strings.Join(strings.Fields(rawBagRule)[:2], " ")
+		contentsSearch := strings.Split(rawBagRule, "contain")[1]
 		contentsMatches := contentsPattern.FindAllStringSubmatch(contentsSearch, -1)
-
-		var contents []day07BagQuantity
 
 		for _, match := range contentsMatches {
 			bag := match[2]
 			quantity, _ := strconv.Atoi(match[1])
 
-			contents = append(contents, day07BagQuantity{bag: bag, quantity: quantity})
+			bagRule.contents = append(bagRule.contents, day07BagQuantity{bag: bag, quantity: quantity})
 		}
 
-		visitFn(containerBag, contents)
-	})
+		bagRules = append(bagRules, bagRule)
+	}
+
+	return bagRules
 }

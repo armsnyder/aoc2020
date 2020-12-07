@@ -22,7 +22,7 @@ func GenerateStub(day int) {
 
 import "io"
 
-var _ = declareDay(%d, func(part2 bool, inputReader io.Reader) interface{} {
+var _ = declareDay(%d, func(part2 bool, rawInput []byte) interface{} {
 	panic("no solution")
 })
 `, day); err != nil {
