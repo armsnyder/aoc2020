@@ -11,30 +11,32 @@ import (
 var _ = declareDay(8, func(part2 bool, inputReader io.Reader) interface{} {
 	program := day08Parse(inputReader)
 
-	if part2 {
-		for i, instruction := range program {
-			var flipped string
-			switch instruction.op {
-			case "nop":
-				flipped = "jmp"
-			case "jmp":
-				flipped = "nop"
-			default:
-				continue
-			}
-			var cpu day08CPU
-			cpu.loadProgram(program)
-			cpu.program[i].op = flipped
-			if cpu.runUntilHaltOrLoop() {
-				return cpu.acc
-			}
-		}
-		panic("no solution")
+	if !part2 {
+		var cpu day08CPU
+		cpu.loadProgram(program)
+		cpu.runUntilHaltOrLoop()
+		return cpu.acc
 	}
 
-	cpu := day08CPU{program: program}
-	cpu.runUntilHaltOrLoop()
-	return cpu.acc
+	for i, instruction := range program {
+		var flipped string
+		switch instruction.op {
+		case "nop":
+			flipped = "jmp"
+		case "jmp":
+			flipped = "nop"
+		default:
+			continue
+		}
+		var cpu day08CPU
+		cpu.loadProgram(program)
+		cpu.program[i].op = flipped
+		if cpu.runUntilHaltOrLoop() {
+			return cpu.acc
+		}
+	}
+
+	panic("no solution")
 })
 
 type day08Instruction struct {
