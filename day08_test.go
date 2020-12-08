@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func Test_day08(t *testing.T) {
@@ -36,4 +38,11 @@ acc +6
 			want: 8,
 		},
 	})
+}
+
+func BenchmarkDay08(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[8](true, aocutil.GetInput(8))
+	}
 }

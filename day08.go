@@ -9,16 +9,16 @@ import (
 )
 
 var _ = declareDay(8, func(part2 bool, inputReader io.Reader) interface{} {
-	program := day08Parse(inputReader)
+	program := day08NewCorruptedProgram(day08Parse(inputReader))
 
 	if !part2 {
-		var cpu day08CPU
-		cpu.loadProgram(program)
+		cpu := day08CPU{program: program}
 		cpu.runUntilHaltOrLoop()
 		return cpu.acc
 	}
 
-	for i, instruction := range program {
+	for i := 0; i < program.len(); i++ {
+		instruction := program.get(i)
 		var flipped string
 		switch instruction.op {
 		case "nop":
@@ -29,8 +29,7 @@ var _ = declareDay(8, func(part2 bool, inputReader io.Reader) interface{} {
 			continue
 		}
 		var cpu day08CPU
-		cpu.loadProgram(program)
-		cpu.program[i].op = flipped
+		cpu.program = program.replace(i, day08Instruction{op: flipped, arg: instruction.arg})
 		if cpu.runUntilHaltOrLoop() {
 			return cpu.acc
 		}
@@ -44,25 +43,51 @@ type day08Instruction struct {
 	arg int
 }
 
-type day08Program []day08Instruction
+type day08CorruptedProgram struct {
+	corruptedInstructions []day08Instruction
+	corruptedIndex        int
+	replacement           day08Instruction
+}
+
+func day08NewCorruptedProgram(instructions []day08Instruction) day08CorruptedProgram {
+	return day08CorruptedProgram{
+		corruptedInstructions: instructions,
+		corruptedIndex:        -1,
+	}
+}
+
+func (d day08CorruptedProgram) get(i int) day08Instruction {
+	if i == d.corruptedIndex {
+		return d.replacement
+	}
+	return d.corruptedInstructions[i]
+}
+
+func (d day08CorruptedProgram) len() int {
+	return len(d.corruptedInstructions)
+}
+
+func (d day08CorruptedProgram) replace(i int, instruction day08Instruction) day08CorruptedProgram {
+	return day08CorruptedProgram{
+		corruptedInstructions: d.corruptedInstructions,
+		corruptedIndex:        i,
+		replacement:           instruction,
+	}
+}
 
 type day08CPU struct {
 	ip      int
 	acc     int
-	program day08Program
-}
-
-func (d *day08CPU) loadProgram(program day08Program) {
-	d.program = make(day08Program, len(program))
-	copy(d.program, program)
+	program day08CorruptedProgram
 }
 
 func (d *day08CPU) runUntilHaltOrLoop() (halts bool) {
-	seen := make([]bool, len(d.program))
+	programLen := d.program.len()
+	seen := make([]bool, programLen)
 	for {
 		seen[d.ip] = true
 		d.step()
-		if d.ip >= len(d.program) {
+		if d.ip >= programLen {
 			return true
 		}
 		if seen[d.ip] {
@@ -72,23 +97,24 @@ func (d *day08CPU) runUntilHaltOrLoop() (halts bool) {
 }
 
 func (d *day08CPU) step() {
-	switch d.program[d.ip].op {
+	instruction := d.program.get(d.ip)
+	switch instruction.op {
 	case "nop":
 		d.ip++
 	case "acc":
-		d.acc += d.program[d.ip].arg
+		d.acc += instruction.arg
 		d.ip++
 	case "jmp":
-		d.ip += d.program[d.ip].arg
+		d.ip += instruction.arg
 	}
 }
 
-func day08Parse(inputReader io.Reader) day08Program {
-	var program day08Program
+func day08Parse(inputReader io.Reader) []day08Instruction {
+	var instructions []day08Instruction
 	aocutil.VisitStrings(inputReader, func(v string) {
 		fields := strings.Fields(v)
 		arg, _ := strconv.Atoi(fields[1])
-		program = append(program, day08Instruction{op: fields[0], arg: arg})
+		instructions = append(instructions, day08Instruction{op: fields[0], arg: arg})
 	})
-	return program
+	return instructions
 }
