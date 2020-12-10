@@ -18,7 +18,7 @@ var _ = declareDay(10, func(part2 bool, inputReader io.Reader) interface{} {
 func day10Part1(inputReader io.Reader) int {
 	jolts := day10SortedJolts(inputReader)
 	joltDiffs1 := 0
-	joltDiffs3 := 0
+	joltDiffs3 := 1
 
 	for i := 1; i < len(jolts); i++ {
 		diff := jolts[i] - jolts[i-1]
@@ -36,38 +36,21 @@ func day10Part1(inputReader io.Reader) int {
 
 func day10Part2(inputReader io.Reader) int {
 	jolts := day10SortedJolts(inputReader)
-	memo := make([]int, len(jolts))
+	waysFromIndex := make([]int, len(jolts))
+	waysFromIndex[len(jolts)-1] = 1
 
-	return day10CountCombinations(jolts, 0, memo)
+	for i := len(jolts) - 1; i >= 0; i-- {
+		for j := i - 1; j >= 0 && jolts[i]-jolts[j] <= 3; j-- {
+			waysFromIndex[j] += waysFromIndex[i]
+		}
+	}
+
+	return waysFromIndex[0]
 }
 
 func day10SortedJolts(inputReader io.Reader) []int {
 	jolts := aocutil.ReadAllInts(inputReader)
-
+	jolts = append(jolts, 0)
 	sort.Ints(jolts)
-
-	jolts = append([]int{0}, jolts...)
-	jolts = append(jolts, jolts[len(jolts)-1]+3)
-
 	return jolts
-}
-
-func day10CountCombinations(jolts []int, start int, memo []int) (total int) {
-	if memo[start] > 0 {
-		return memo[start]
-	}
-
-	defer func() {
-		memo[start] = total
-	}()
-
-	if start == len(jolts)-1 {
-		return 1
-	}
-
-	for i := start + 1; i < len(jolts) && jolts[i]-jolts[start] <= 3; i++ {
-		total += day10CountCombinations(jolts, i, memo)
-	}
-
-	return total
 }
