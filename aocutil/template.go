@@ -33,6 +33,8 @@ var _ = declareDay(%d, func(part2 bool, inputReader io.Reader) interface{} {
 
 import (
 	"testing"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func Test_day%02[1]d(t *testing.T) {
@@ -47,6 +49,13 @@ func Test_day%02[1]d(t *testing.T) {
 		//	want:  nil,
 		//},
 	})
+}
+
+func BenchmarkDay%02[1]d(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[%[1]d](true, aocutil.GetInput(%[1]d))
+	}
 }
 `, day, "`"); err != nil {
 		panic(err)
