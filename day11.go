@@ -10,23 +10,20 @@ import (
 
 var _ = declareDay(11, func(part2 bool, inputReader io.Reader) interface{} {
 	seats := aocutil.ReadAllStrings(inputReader)
-
-	lastCount := 0
+	count := 0
 
 	for {
-		day11DoRound(seats, part2)
+		delta := day11DoRound(seats, part2)
 
-		count := day11CountOccupiedSeats(seats)
-
-		if lastCount == count {
+		if delta == 0 {
 			return count
 		}
 
-		lastCount = count
+		count += delta
 	}
 })
 
-func day11DoRound(seats []string, part2 bool) {
+func day11DoRound(seats []string, part2 bool) (occupiedSeatDelta int) {
 	directions := [][2]int{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}}
 
 	positionsToOccupy := make([][]int, len(seats))
@@ -72,8 +69,11 @@ func day11DoRound(seats []string, part2 bool) {
 	for i := 0; i < len(seats); i++ {
 		if len(positionsToOccupy[i]) > 0 || len(positionsToEmpty[i]) > 0 {
 			seats[i] = day11RebuildRow(seats[i], positionsToOccupy[i], positionsToEmpty[i], &sb)
+			occupiedSeatDelta += len(positionsToOccupy[i]) - len(positionsToEmpty[i])
 		}
 	}
+
+	return occupiedSeatDelta
 }
 
 func day11CheckOccupied(seats []string, i, j int, dir [2]int, sightMode bool) bool {
@@ -132,18 +132,4 @@ func day11RebuildRow(row string, positionsToOccupy, positionsToEmpty []int, sb *
 	}
 
 	return sb.String()
-}
-
-func day11CountOccupiedSeats(seats []string) int {
-	total := 0
-
-	for _, line := range seats {
-		for _, ch := range line {
-			if ch == '#' {
-				total++
-			}
-		}
-	}
-
-	return total
 }
