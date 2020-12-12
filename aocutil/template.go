@@ -6,6 +6,10 @@ import (
 )
 
 func GenerateStub(day int) {
+	if _, err := os.Lstat(fmt.Sprintf("day%02d.go", day)); err != os.ErrNotExist {
+		panic(fmt.Errorf("Did you not build the full package? Lstat error: %v", err))
+	}
+
 	code, err := os.Create(fmt.Sprintf("day%02d.go", day))
 	if err != nil {
 		panic(err)
