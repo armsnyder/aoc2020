@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"strconv"
 
@@ -51,6 +50,12 @@ func day12Part2(inputReader io.Reader) int {
 	shipX, shipY := 0, 0
 	waypointX, waypointY := 10, 1
 
+	rotationToTransform := map[int]func(int, int) (int, int){
+		90:  func(x, y int) (int, int) { return -y, x },
+		180: func(x, y int) (int, int) { return -x, -y },
+		270: func(x, y int) (int, int) { return y, -x },
+	}
+
 	day12VisitDirections(inputReader, func(action uint8, value int) {
 		switch action {
 		case 'N':
@@ -62,9 +67,9 @@ func day12Part2(inputReader io.Reader) int {
 		case 'W':
 			waypointX -= value
 		case 'L':
-			waypointX, waypointY = day12Rotate(waypointX, waypointY, value)
+			waypointX, waypointY = rotationToTransform[value](waypointX, waypointY)
 		case 'R':
-			waypointX, waypointY = day12Rotate(waypointX, waypointY, 360-value)
+			waypointX, waypointY = rotationToTransform[360-value](waypointX, waypointY)
 		case 'F':
 			shipX += waypointX * value
 			shipY += waypointY * value
@@ -80,19 +85,6 @@ func day12VisitDirections(inputReader io.Reader, visitFn func(action uint8, valu
 		value, _ := strconv.Atoi(v[1:])
 		visitFn(action, value)
 	})
-}
-
-func day12Rotate(x, y, deg int) (x2, y2 int) {
-	switch deg {
-	case 90:
-		return -y, x
-	case 180:
-		return -x, -y
-	case 270:
-		return y, -x
-	default:
-		panic(fmt.Errorf("unhandled angle %d", deg))
-	}
 }
 
 func day12ManhattanDistance(x, y int) int {
