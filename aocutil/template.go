@@ -1,12 +1,13 @@
 package aocutil
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
 func GenerateStub(day int) {
-	if _, err := os.Lstat(fmt.Sprintf("day%02d.go", day)); err != os.ErrNotExist {
+	if _, err := os.Lstat(fmt.Sprintf("day%02d.go", day)); !errors.Is(err, os.ErrNotExist) {
 		panic(fmt.Errorf("Did you not build the full package? Lstat error: %v", err))
 	}
 
