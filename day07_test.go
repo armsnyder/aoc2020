@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"io/ioutil"
 	"testing"
 
 	"github.com/armsnyder/aoc2020/aocutil"
@@ -58,16 +60,32 @@ dark violet bags contain no other bags.
 	})
 }
 
-func BenchmarkDay07Part1(b *testing.B) {
+func BenchmarkDay07BaselineIO(b *testing.B) {
+	day := 7
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		days[7](false, aocutil.GetInput(7))
+		input := aocutil.GetInput(day)
+		io.Copy(ioutil.Discard, input)
+		input.Close()
+	}
+}
+
+func BenchmarkDay07Part1(b *testing.B) {
+	day := 7
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		input := aocutil.GetInput(day)
+		days[day](false, input)
+		input.Close()
 	}
 }
 
 func BenchmarkDay07Part2(b *testing.B) {
+	day := 7
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		days[7](true, aocutil.GetInput(7))
+		input := aocutil.GetInput(day)
+		days[day](true, input)
+		input.Close()
 	}
 }

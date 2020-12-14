@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"io/ioutil"
 	"strings"
 	"testing"
 
@@ -67,16 +69,32 @@ func TestDay09Part2(t *testing.T) {
 	}
 }
 
-func BenchmarkDay09Part1(b *testing.B) {
+func BenchmarkDay09BaselineIO(b *testing.B) {
+	day := 9
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		days[9](false, aocutil.GetInput(9))
+		input := aocutil.GetInput(day)
+		io.Copy(ioutil.Discard, input)
+		input.Close()
+	}
+}
+
+func BenchmarkDay09Part1(b *testing.B) {
+	day := 9
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		input := aocutil.GetInput(day)
+		days[day](false, input)
+		input.Close()
 	}
 }
 
 func BenchmarkDay09Part2(b *testing.B) {
+	day := 9
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		days[9](true, aocutil.GetInput(9))
+		input := aocutil.GetInput(day)
+		days[day](true, input)
+		input.Close()
 	}
 }

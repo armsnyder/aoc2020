@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"io/ioutil"
 	"testing"
 
 	"github.com/armsnyder/aoc2020/aocutil"
@@ -71,16 +73,32 @@ xxx
 	})
 }
 
-func BenchmarkDay13Part1(b *testing.B) {
+func BenchmarkDay13BaselineIO(b *testing.B) {
+	day := 13
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		days[13](false, aocutil.GetInput(13))
+		input := aocutil.GetInput(day)
+		io.Copy(ioutil.Discard, input)
+		input.Close()
+	}
+}
+
+func BenchmarkDay13Part1(b *testing.B) {
+	day := 13
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		input := aocutil.GetInput(day)
+		days[day](false, input)
+		input.Close()
 	}
 }
 
 func BenchmarkDay13Part2(b *testing.B) {
+	day := 13
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		days[13](true, aocutil.GetInput(13))
+		input := aocutil.GetInput(day)
+		days[day](true, input)
+		input.Close()
 	}
 }
