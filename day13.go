@@ -41,55 +41,37 @@ func day13Part1(inputReader io.Reader) interface{} {
 	return bestWaitTime * bestBusID
 }
 
+// day13Part2 assumes that all bus IDs are co-prime.
 func day13Part2(inputReader io.Reader) interface{} {
 	notes := strings.Split(aocutil.ReadAllStrings(inputReader)[1], ",")
 
-	var expressions []day13ModularExpression
+	var workingResult int64 = 0
+	var workingModuliProduct int64 = 1
 
 	for i, note := range notes {
 		if note == "x" {
 			continue
 		}
 
-		var expression day13ModularExpression
-		expression.modulus, _ = strconv.ParseInt(note, 10, 64)
-		expression.remainder = day13PositiveModulo(-int64(i), expression.modulus)
+		// Find a new workingResult that satisfies all previous modular congruencies, in addition to
+		// the new congruency given by this bus ID. This is done by solving the modular equation for
+		// k and adding k * workingModuliProduct to the workingResult.
+		//     k * workingModuliProduct + workingResult + i ≡ 0 (mod busID)
 
-		expressions = append(expressions, expression)
+		busID, _ := strconv.ParseInt(note, 10, 64)
+		congruentTo := day13PositiveModulo(-workingResult-int64(i), busID)
+		inverse := day13ModularMultiplicativeInverse(workingModuliProduct, busID)
+		k := (inverse * congruentTo) % busID
+
+		workingResult += workingModuliProduct * k
+		workingModuliProduct *= busID
 	}
 
-	return day13SolveSystemOfCongruences(expressions)
+	return workingResult
 }
 
 func day13PositiveModulo(a, m int64) int64 {
 	return ((a % m) + m) % m
-}
-
-type day13ModularExpression struct {
-	remainder int64
-	modulus   int64
-}
-
-// day13SolveSystemOfCongruences uses the Chinese Remainder Theorem to find the smallest value that
-// is congruent to each expression's remainder using that expression's modulus. All moduli must be
-// co-prime.
-func day13SolveSystemOfCongruences(expressions []day13ModularExpression) int64 {
-	var moduliProduct int64 = 1
-
-	for _, expression := range expressions {
-		moduliProduct *= expression.modulus
-	}
-
-	var result int64
-
-	for _, expression := range expressions {
-		zeroValue := moduliProduct / expression.modulus
-		inverse := day13ModularMultiplicativeInverse(zeroValue, expression.modulus)
-		result += zeroValue * expression.remainder * inverse
-		result %= moduliProduct
-	}
-
-	return result
 }
 
 // day13ModularMultiplicativeInverse uses the Extended Euclidean Algorithm to find a modular
