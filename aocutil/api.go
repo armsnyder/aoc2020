@@ -16,10 +16,6 @@ import (
 )
 
 func GetInput(day int) io.ReadCloser {
-	if err := os.MkdirAll("inputs", 0755); err != nil {
-		panic(err)
-	}
-
 	puzzleInputFilename := filepath.Join("inputs", fmt.Sprintf("%02d.txt", day))
 
 	if _, err := os.Lstat(puzzleInputFilename); errors.Is(err, os.ErrNotExist) {
@@ -34,6 +30,10 @@ func GetInput(day int) io.ReadCloser {
 
 		if resp.StatusCode != http.StatusOK {
 			panic(resp.Status)
+		}
+
+		if err := os.MkdirAll("inputs", 0755); err != nil {
+			panic(err)
 		}
 
 		out, err := os.Create(puzzleInputFilename)
