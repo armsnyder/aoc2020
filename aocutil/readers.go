@@ -34,6 +34,19 @@ func ReadAllStrings(inputReader io.Reader) []string {
 	return result
 }
 
+func Read2DByteArray(inputReader io.Reader) [][]byte {
+	var result [][]byte
+	scanner := bufio.NewScanner(inputReader)
+	for scanner.Scan() {
+		if len(scanner.Bytes()) > 0 {
+			row := make([]byte, len(scanner.Bytes()))
+			copy(row, scanner.Bytes())
+			result = append(result, row)
+		}
+	}
+	return result
+}
+
 func VisitStrings(inputReader io.Reader, visitFn func(v string)) {
 	VisitLines(inputReader, func(v string) {
 		if len(v) > 0 {

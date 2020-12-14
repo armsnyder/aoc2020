@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"io"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 var _ = declareDay(11, func(part2 bool, inputReader io.Reader) interface{} {
-	seats := day11Read2DByteArray(inputReader)
+	seats := aocutil.Read2DByteArray(inputReader)
 
 	seatChangeBuffer := make([][]byte, len(seats))
 	for i, row := range seats {
@@ -18,19 +19,6 @@ var _ = declareDay(11, func(part2 bool, inputReader io.Reader) interface{} {
 
 	return day11CountOccupied(seats)
 })
-
-func day11Read2DByteArray(inputReader io.Reader) (result [][]byte) {
-	scanner := bufio.NewScanner(inputReader)
-	scanner.Buffer(make([]byte, 93), bufio.MaxScanTokenSize)
-	for scanner.Scan() {
-		if len(scanner.Bytes()) > 0 {
-			row := make([]byte, len(scanner.Bytes()))
-			copy(row, scanner.Bytes())
-			result = append(result, row)
-		}
-	}
-	return
-}
 
 func day11CountOccupied(seats [][]byte) (total int) {
 	for _, row := range seats {
