@@ -1,34 +1,50 @@
 package main
 
 import (
+	"bufio"
 	"io"
-	"sort"
-	"strings"
-
-	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 var _ = declareDay(11, func(part2 bool, inputReader io.Reader) interface{} {
-	seats := aocutil.ReadAllStrings(inputReader)
-	count := 0
+	seats := day11Read2DByteArray(inputReader)
 
-	for {
-		delta := day11DoRound(seats, part2)
-
-		if delta == 0 {
-			return count
-		}
-
-		count += delta
+	seatChangeBuffer := make([][]byte, len(seats))
+	for i, row := range seats {
+		seatChangeBuffer[i] = make([]byte, len(row))
 	}
+
+	for day11DoRound(seats, seatChangeBuffer, part2) {
+	}
+
+	return day11CountOccupied(seats)
 })
 
-func day11DoRound(seats []string, part2 bool) (occupiedSeatDelta int) {
-	directions := [][2]int{{-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}}
+func day11Read2DByteArray(inputReader io.Reader) (result [][]byte) {
+	scanner := bufio.NewScanner(inputReader)
+	scanner.Buffer(make([]byte, 93), bufio.MaxScanTokenSize)
+	for scanner.Scan() {
+		if len(scanner.Bytes()) > 0 {
+			row := make([]byte, len(scanner.Bytes()))
+			copy(row, scanner.Bytes())
+			result = append(result, row)
+		}
+	}
+	return
+}
 
-	positionsToOccupy := make([][]int, len(seats))
-	positionsToEmpty := make([][]int, len(seats))
+func day11CountOccupied(seats [][]byte) (total int) {
+	for _, row := range seats {
+		for _, ch := range row {
+			if ch == '#' {
+				total++
+			}
+		}
+	}
 
+	return total
+}
+
+func day11DoRound(seats, seatChangeBuffer [][]byte, part2 bool) (changed bool) {
 	leaveSeatThreshold := 4
 	if part2 {
 		leaveSeatThreshold = 5
@@ -39,47 +55,64 @@ func day11DoRound(seats []string, part2 bool) (occupiedSeatDelta int) {
 		for j := 0; j < len(seats[0]); j++ {
 			switch seats[i][j] {
 			case 'L':
-				for _, dir := range directions {
-					if day11CheckOccupied(seats, i, j, dir, part2) {
-						continue outer
+				for di := -1; di <= 1; di++ {
+					for dj := -1; dj <= 1; dj++ {
+						if di == 0 && dj == 0 {
+							continue
+						}
+						if day11CheckOccupied(seats, i, j, di, dj, part2) {
+							seatChangeBuffer[i][j] = 0
+							continue outer
+						}
 					}
 				}
 
-				positionsToOccupy[i] = append(positionsToOccupy[i], j)
+				seatChangeBuffer[i][j] = '#'
 
 			case '#':
 				total := 0
 
-				for _, dir := range directions {
-					if day11CheckOccupied(seats, i, j, dir, part2) {
-						total++
+				for di := -1; di <= 1; di++ {
+					for dj := -1; dj <= 1; dj++ {
+						if di == 0 && dj == 0 {
+							continue
+						}
+						if day11CheckOccupied(seats, i, j, di, dj, part2) {
+							total++
 
-						if total >= leaveSeatThreshold {
-							positionsToEmpty[i] = append(positionsToEmpty[i], j)
-							break
+							if total >= leaveSeatThreshold {
+								seatChangeBuffer[i][j] = 'L'
+								continue outer
+							}
 						}
 					}
 				}
+
+				seatChangeBuffer[i][j] = 0
 			}
 		}
 	}
 
-	var sb strings.Builder
-
-	for i := 0; i < len(seats); i++ {
-		if len(positionsToOccupy[i]) > 0 || len(positionsToEmpty[i]) > 0 {
-			seats[i] = day11RebuildRow(seats[i], positionsToOccupy[i], positionsToEmpty[i], &sb)
-			occupiedSeatDelta += len(positionsToOccupy[i]) - len(positionsToEmpty[i])
+	for i, row := range seatChangeBuffer {
+		for j, ch := range row {
+			switch ch {
+			case 'L':
+				seats[i][j] = 'L'
+				changed = true
+			case '#':
+				seats[i][j] = '#'
+				changed = true
+			}
 		}
 	}
 
-	return occupiedSeatDelta
+	return changed
 }
 
-func day11CheckOccupied(seats []string, i, j int, dir [2]int, sightMode bool) bool {
+func day11CheckOccupied(seats [][]byte, i, j, di, dj int, sightMode bool) bool {
 	for {
-		i += dir[0]
-		j += dir[1]
+		i += di
+		j += dj
 
 		if !day11CheckIndex(seats, i, j) {
 			return false
@@ -98,7 +131,7 @@ func day11CheckOccupied(seats []string, i, j int, dir [2]int, sightMode bool) bo
 	}
 }
 
-func day11CheckIndex(seats []string, i, j int) bool {
+func day11CheckIndex(seats [][]byte, i, j int) bool {
 	if i < 0 || i >= len(seats) {
 		return false
 	}
@@ -108,28 +141,4 @@ func day11CheckIndex(seats []string, i, j int) bool {
 	}
 
 	return true
-}
-
-func day11RebuildRow(row string, positionsToOccupy, positionsToEmpty []int, sb *strings.Builder) string {
-	sb.Reset()
-
-	sort.Ints(positionsToOccupy)
-	sort.Ints(positionsToEmpty)
-
-	occupyI := 0
-	emptyI := 0
-
-	for i := 0; i < len(row); i++ {
-		if occupyI < len(positionsToOccupy) && positionsToOccupy[occupyI] == i {
-			sb.WriteRune('#')
-			occupyI++
-		} else if emptyI < len(positionsToEmpty) && positionsToEmpty[emptyI] == i {
-			sb.WriteRune('L')
-			emptyI++
-		} else {
-			sb.WriteByte(row[i])
-		}
-	}
-
-	return sb.String()
 }
