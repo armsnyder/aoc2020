@@ -6,7 +6,7 @@ import (
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-func Test_day08(t *testing.T) {
+func TestDay08Part1(t *testing.T) {
 	runDayTests(t, 8, []dayTest{
 		{
 			input: `
@@ -22,6 +22,11 @@ acc +6
 `,
 			want: 5,
 		},
+	})
+}
+
+func TestDay08Part2(t *testing.T) {
+	runDayTests(t, 8, []dayTest{
 		{
 			part2: true,
 			input: `
@@ -40,7 +45,14 @@ acc +6
 	})
 }
 
-func BenchmarkDay08(b *testing.B) {
+func BenchmarkDay08Part1(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[8](false, aocutil.GetInput(8))
+	}
+}
+
+func BenchmarkDay08Part2(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		days[8](true, aocutil.GetInput(8))

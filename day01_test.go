@@ -2,9 +2,11 @@ package main
 
 import (
 	"testing"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-func Test_day01(t *testing.T) {
+func TestDay01Part1(t *testing.T) {
 	runDayTests(t, 1, []dayTest{
 		{
 			input: `
@@ -17,6 +19,11 @@ func Test_day01(t *testing.T) {
 `,
 			want: 514579,
 		},
+	})
+}
+
+func TestDay01Part2(t *testing.T) {
+	runDayTests(t, 1, []dayTest{
 		{
 			part2: true,
 			input: `
@@ -30,4 +37,18 @@ func Test_day01(t *testing.T) {
 			want: 241861950,
 		},
 	})
+}
+
+func BenchmarkDay01Part1(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[1](false, aocutil.GetInput(1))
+	}
+}
+
+func BenchmarkDay01Part2(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[1](true, aocutil.GetInput(1))
+	}
 }

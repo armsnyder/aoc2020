@@ -7,7 +7,7 @@ import (
 	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-func Test_day09Part1(t *testing.T) {
+func TestDay09Part1(t *testing.T) {
 	inputReader := strings.NewReader(`
 35
 20
@@ -37,7 +37,7 @@ func Test_day09Part1(t *testing.T) {
 	}
 }
 
-func Test_day09Part2(t *testing.T) {
+func TestDay09Part2(t *testing.T) {
 	inputReader := strings.NewReader(`
 35
 20
@@ -67,7 +67,14 @@ func Test_day09Part2(t *testing.T) {
 	}
 }
 
-func BenchmarkDay09(b *testing.B) {
+func BenchmarkDay09Part1(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[9](false, aocutil.GetInput(9))
+	}
+}
+
+func BenchmarkDay09Part2(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		days[9](true, aocutil.GetInput(9))

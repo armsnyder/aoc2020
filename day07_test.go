@@ -2,9 +2,11 @@ package main
 
 import (
 	"testing"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-func Test_day07(t *testing.T) {
+func TestDay07Part1(t *testing.T) {
 	runDayTests(t, 7, []dayTest{
 		{
 			input: `
@@ -20,6 +22,11 @@ dotted black bags contain no other bags.
 `,
 			want: 4,
 		},
+	})
+}
+
+func TestDay07Part2(t *testing.T) {
+	runDayTests(t, 7, []dayTest{
 		{
 			part2: true,
 			input: `
@@ -49,4 +56,18 @@ dark violet bags contain no other bags.
 			want: 126,
 		},
 	})
+}
+
+func BenchmarkDay07Part1(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[7](false, aocutil.GetInput(7))
+	}
+}
+
+func BenchmarkDay07Part2(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[7](true, aocutil.GetInput(7))
+	}
 }

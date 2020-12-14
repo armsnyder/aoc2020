@@ -2,12 +2,13 @@ package main
 
 import (
 	"testing"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
-func Test_day04(t *testing.T) {
+func TestDay04Part1(t *testing.T) {
 	runDayTests(t, 4, []dayTest{
 		{
-			name: "part 1",
 			input: `
 ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
 byr:1937 iyr:2017 cid:147 hgt:183cm
@@ -25,8 +26,13 @@ iyr:2011 ecl:brn hgt:59in
 `,
 			want: 2,
 		},
+	})
+}
+
+func TestDay04Part2(t *testing.T) {
+	runDayTests(t, 4, []dayTest{
 		{
-			name:  "part 2 invalid passports",
+			name:  "invalid passports",
 			part2: true,
 			input: `
 eyr:1972 cid:100
@@ -46,7 +52,7 @@ pid:3556412378 byr:2007
 			want: 0,
 		},
 		{
-			name:  "part 2 valid passports",
+			name:  "valid passports",
 			part2: true,
 			input: `
 pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
@@ -65,4 +71,18 @@ iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
 			want: 4,
 		},
 	})
+}
+
+func BenchmarkDay04Part1(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[4](false, aocutil.GetInput(4))
+	}
+}
+
+func BenchmarkDay04Part2(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		days[4](true, aocutil.GetInput(4))
+	}
 }

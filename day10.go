@@ -11,7 +11,6 @@ var _ = declareDay(10, func(part2 bool, inputReader io.Reader) interface{} {
 	if part2 {
 		return day10Part2(inputReader)
 	}
-
 	return day10Part1(inputReader)
 })
 
