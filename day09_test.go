@@ -3,8 +3,6 @@ package main
 import (
 	"strings"
 	"testing"
-
-	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func TestDay09Part1(t *testing.T) {
@@ -64,25 +62,5 @@ func TestDay09Part2(t *testing.T) {
 	want := 62
 	if got != want {
 		t.Errorf("day09Part1() = %v, want %v", got, want)
-	}
-}
-
-func BenchmarkDay09Part1(b *testing.B) {
-	day := 9
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](false, input)
-		input.Close()
-	}
-}
-
-func BenchmarkDay09Part2(b *testing.B) {
-	day := 9
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](true, input)
-		input.Close()
 	}
 }

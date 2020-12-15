@@ -2,8 +2,6 @@ package main
 
 import (
 	"testing"
-
-	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func TestDay13Part1(t *testing.T) {
@@ -69,24 +67,4 @@ xxx
 			want: int64(1202161486),
 		},
 	})
-}
-
-func BenchmarkDay13Part1(b *testing.B) {
-	day := 13
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](false, input)
-		input.Close()
-	}
-}
-
-func BenchmarkDay13Part2(b *testing.B) {
-	day := 13
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](true, input)
-		input.Close()
-	}
 }

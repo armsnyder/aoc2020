@@ -57,8 +57,6 @@ func day%02[1]dPart2(inputReader io.Reader) interface{} {
 
 import (
 	"testing"
-
-	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func TestDay%02[1]dPart1(t *testing.T) {
@@ -72,32 +70,12 @@ func TestDay%02[1]dPart1(t *testing.T) {
 
 func TestDay%02[1]dPart2(t *testing.T) {
 	runDayTests(t, %[1]d, []dayTest{
-		{
-			part2: true,
-			input: %[2]s%[2]s,
-			want:  nil,
-		},
+		//{
+		//	part2: true,
+		//	input: %[2]s%[2]s,
+		//	want:  nil,
+		//},
 	})
-}
-
-func BenchmarkDay%02[1]dPart1(b *testing.B) {
-	day := %[1]d
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](false, input)
-		input.Close()
-	}
-}
-
-func BenchmarkDay%02[1]dPart2(b *testing.B) {
-	day := %[1]d
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](true, input)
-		input.Close()
-	}
 }
 `, day, "`"); err != nil {
 		panic(err)

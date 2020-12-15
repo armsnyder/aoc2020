@@ -2,8 +2,6 @@ package main
 
 import (
 	"testing"
-
-	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func TestDay07Part1(t *testing.T) {
@@ -56,24 +54,4 @@ dark violet bags contain no other bags.
 			want: 126,
 		},
 	})
-}
-
-func BenchmarkDay07Part1(b *testing.B) {
-	day := 7
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](false, input)
-		input.Close()
-	}
-}
-
-func BenchmarkDay07Part2(b *testing.B) {
-	day := 7
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](true, input)
-		input.Close()
-	}
 }

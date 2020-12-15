@@ -2,8 +2,6 @@ package main
 
 import (
 	"testing"
-
-	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 func TestDay05Part1(t *testing.T) {
@@ -37,24 +35,4 @@ FBFBBFFRLR
 			want: 358,
 		},
 	})
-}
-
-func BenchmarkDay05Part1(b *testing.B) {
-	day := 5
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](false, input)
-		input.Close()
-	}
-}
-
-func BenchmarkDay05Part2(b *testing.B) {
-	day := 5
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		days[day](true, input)
-		input.Close()
-	}
 }

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 
@@ -35,5 +37,27 @@ func BenchmarkBaselineIO(b *testing.B) {
 		input := aocutil.GetInput(day)
 		io.Copy(ioutil.Discard, input)
 		input.Close()
+	}
+}
+
+func BenchmarkDay(b *testing.B) {
+	dayNumbers := make([]int, 0, len(days))
+	for dayNum := range days {
+		dayNumbers = append(dayNumbers, dayNum)
+	}
+	sort.Ints(dayNumbers)
+	for _, dayNum := range dayNumbers {
+		b.Run(fmt.Sprintf("%02d", dayNum), func(b *testing.B) {
+			for part := 1; part <= 2; part++ {
+				b.Run(fmt.Sprintf("Part%d", part), func(b *testing.B) {
+					b.ReportAllocs()
+					for i := 0; i < b.N; i++ {
+						input := aocutil.GetInput(dayNum)
+						days[dayNum](part == 2, input)
+						input.Close()
+					}
+				})
+			}
+		})
 	}
 }
