@@ -16,46 +16,43 @@ Requires a `session.txt` file containing a session token, for pulling puzzle inp
 I thought it would be fun to share performance [benchmarks](https://golang.org/pkg/testing/#hdr-Benchmarks)
 for each of my puzzle solutions, since I write benchmarks anyway to help guide my optimizations.
 I don't always optimize for the best possible time if I think it impacts code readability.
-Benchmarks use the real puzzle input and include file I/O with the puzzle input file.
-The `BenchmarkBaselineIO` benchmark reads and discards the day 1 input file without running the
-solution code, to serve as a baseline for the solution benchmarks.
+Benchmarks use the real puzzle input, which is preloaded in memory.
 
 ```
 $ go test -bench=.
 goos: darwin
 goarch: amd64
 pkg: github.com/armsnyder/aoc2020
-BenchmarkBaselineIO-16    	   44950	     25206 ns/op	     369 B/op	       7 allocs/op
-BenchmarkDay/01/Part1-16  	   32905	     36276 ns/op	    9373 B/op	     218 allocs/op
-BenchmarkDay/01/Part2-16  	   28926	     39114 ns/op	    9373 B/op	     218 allocs/op
-BenchmarkDay/02/Part1-16  	    4392	    251253 ns/op	   95181 B/op	    2009 allocs/op
-BenchmarkDay/02/Part2-16  	    5166	    245086 ns/op	   95181 B/op	    2009 allocs/op
-BenchmarkDay/03/Part1-16  	   23556	     49908 ns/op	   31186 B/op	     341 allocs/op
-BenchmarkDay/03/Part2-16  	   20019	     59153 ns/op	   31194 B/op	     342 allocs/op
-BenchmarkDay/04/Part1-16  	    2030	    593450 ns/op	  271770 B/op	    5347 allocs/op
-BenchmarkDay/04/Part2-16  	    1641	    709610 ns/op	  297471 B/op	    5878 allocs/op
-BenchmarkDay/05/Part1-16  	   10000	    103173 ns/op	   18626 B/op	     893 allocs/op
-BenchmarkDay/05/Part2-16  	    6789	    182711 ns/op	   35035 B/op	     905 allocs/op
-BenchmarkDay/06/Part1-16  	    1254	    883501 ns/op	  330940 B/op	    4776 allocs/op
-BenchmarkDay/06/Part2-16  	    1306	    905319 ns/op	  330905 B/op	    4775 allocs/op
-BenchmarkDay/07/Part1-16  	     613	   1978018 ns/op	  776738 B/op	    8538 allocs/op
-BenchmarkDay/07/Part2-16  	     651	   1799740 ns/op	  690940 B/op	    7412 allocs/op
-BenchmarkDay/08/Part1-16  	   10000	    119701 ns/op	   79453 B/op	    1279 allocs/op
-BenchmarkDay/08/Part2-16  	    4071	    252675 ns/op	  167185 B/op	    1416 allocs/op
-BenchmarkDay/09/Part1-16  	   10000	    107844 ns/op	   31073 B/op	    1011 allocs/op
-BenchmarkDay/09/Part2-16  	    2923	    416603 ns/op	   31073 B/op	    1011 allocs/op
-BenchmarkDay/10/Part1-16  	   33099	     36761 ns/op	    6844 B/op	     119 allocs/op
-BenchmarkDay/10/Part2-16  	   28045	     37273 ns/op	    7740 B/op	     120 allocs/op
-BenchmarkDay/11/Part1-16  	      55	  21846868 ns/op	   32337 B/op	     216 allocs/op
-BenchmarkDay/11/Part2-16  	      45	  25763523 ns/op	   32351 B/op	     216 allocs/op
-BenchmarkDay/12/Part1-16  	   18768	     65053 ns/op	    6812 B/op	     799 allocs/op
-BenchmarkDay/12/Part2-16  	   19299	     61873 ns/op	    6812 B/op	     799 allocs/op
-BenchmarkDay/13/Part1-16  	   41491	     29056 ns/op	    5835 B/op	      13 allocs/op
-BenchmarkDay/13/Part2-16  	   40671	     29303 ns/op	    5843 B/op	      14 allocs/op
-BenchmarkDay/14/Part1-16  	    6981	    170990 ns/op	   63015 B/op	    1155 allocs/op
-BenchmarkDay/14/Part2-16  	     148	   8191668 ns/op	 5610704 B/op	    4347 allocs/op
-BenchmarkDay/15/Part1-16  	   37526	     32416 ns/op	   12847 B/op	      14 allocs/op
-BenchmarkDay/15/Part2-16  	       3	 426698431 ns/op	120011461 B/op	      17 allocs/op
+Benchmark/Day_01/Part_1-16  	  119534	      9236 ns/op	    9000 B/op	     211 allocs/op
+Benchmark/Day_01/Part_2-16  	  101847	     11525 ns/op	    9000 B/op	     211 allocs/op
+Benchmark/Day_02/Part_1-16  	    5508	    224858 ns/op	   94760 B/op	    2002 allocs/op
+Benchmark/Day_02/Part_2-16  	    5751	    213924 ns/op	   94760 B/op	    2002 allocs/op
+Benchmark/Day_03/Part_1-16  	   61533	     20474 ns/op	   30800 B/op	     334 allocs/op
+Benchmark/Day_03/Part_2-16  	   40292	     29375 ns/op	   30808 B/op	     335 allocs/op
+Benchmark/Day_04/Part_1-16  	    2168	    559111 ns/op	  271256 B/op	    5340 allocs/op
+Benchmark/Day_04/Part_2-16  	    1712	    672812 ns/op	  296944 B/op	    5871 allocs/op
+Benchmark/Day_05/Part_1-16  	   16333	     73975 ns/op	   18248 B/op	     886 allocs/op
+Benchmark/Day_05/Part_2-16  	    8386	    153180 ns/op	   34656 B/op	     898 allocs/op
+Benchmark/Day_06/Part_1-16  	    1396	    862463 ns/op	  330426 B/op	    4769 allocs/op
+Benchmark/Day_06/Part_2-16  	    1410	    882457 ns/op	  330453 B/op	    4770 allocs/op
+Benchmark/Day_07/Part_1-16  	     571	   2015157 ns/op	  776086 B/op	    8530 allocs/op
+Benchmark/Day_07/Part_2-16  	     656	   1836020 ns/op	  691157 B/op	    7405 allocs/op
+Benchmark/Day_08/Part_1-16  	   13753	     82480 ns/op	   79040 B/op	    1272 allocs/op
+Benchmark/Day_08/Part_2-16  	    6619	    188086 ns/op	  166720 B/op	    1409 allocs/op
+Benchmark/Day_09/Part_1-16  	   15736	     75196 ns/op	   30688 B/op	    1004 allocs/op
+Benchmark/Day_09/Part_2-16  	    3165	    379661 ns/op	   30688 B/op	    1004 allocs/op
+Benchmark/Day_10/Part_1-16  	  130377	      9083 ns/op	    6472 B/op	     112 allocs/op
+Benchmark/Day_10/Part_2-16  	  125991	      9196 ns/op	    7368 B/op	     113 allocs/op
+Benchmark/Day_11/Part_1-16  	      54	  21930367 ns/op	   31928 B/op	     209 allocs/op
+Benchmark/Day_11/Part_2-16  	      45	  25850478 ns/op	   31928 B/op	     209 allocs/op
+Benchmark/Day_12/Part_1-16  	   31195	     37552 ns/op	    6448 B/op	     792 allocs/op
+Benchmark/Day_12/Part_2-16  	   34176	     35671 ns/op	    6448 B/op	     792 allocs/op
+Benchmark/Day_13/Part_1-16  	  563704	      1989 ns/op	    5464 B/op	       6 allocs/op
+Benchmark/Day_13/Part_2-16  	  461443	      2607 ns/op	    5472 B/op	       7 allocs/op
+Benchmark/Day_14/Part_1-16  	    9158	    135289 ns/op	   62620 B/op	    1148 allocs/op
+Benchmark/Day_14/Part_2-16  	     151	   7994621 ns/op	 5606474 B/op	    4331 allocs/op
+Benchmark/Day_15/Part_1-16  	  216478	      5029 ns/op	   12472 B/op	       7 allocs/op
+Benchmark/Day_15/Part_2-16  	       3	 428744444 ns/op	120008928 B/op	       7 allocs/op
 PASS
-ok  	github.com/armsnyder/aoc2020	45.496s
+ok  	github.com/armsnyder/aoc2020	43.950s
 ```

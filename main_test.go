@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"reflect"
 	"sort"
@@ -30,31 +30,28 @@ func runDayTests(t *testing.T, day int, tests []dayTest) {
 	}
 }
 
-func BenchmarkBaselineIO(b *testing.B) {
-	day := 1
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		io.Copy(ioutil.Discard, input)
-		input.Close()
-	}
-}
-
-func BenchmarkDay(b *testing.B) {
+func Benchmark(b *testing.B) {
 	dayNumbers := make([]int, 0, len(days))
 	for dayNum := range days {
 		dayNumbers = append(dayNumbers, dayNum)
 	}
 	sort.Ints(dayNumbers)
 	for _, dayNum := range dayNumbers {
-		b.Run(fmt.Sprintf("%02d", dayNum), func(b *testing.B) {
+		b.Run(fmt.Sprintf("Day %02d", dayNum), func(b *testing.B) {
+			input := aocutil.GetInput(dayNum)
+			inputBytes, err := ioutil.ReadAll(input)
+			if err != nil {
+				panic(err)
+			}
+			input.Close()
+			inputReader := bytes.NewReader(inputBytes)
+
 			for part := 1; part <= 2; part++ {
-				b.Run(fmt.Sprintf("Part%d", part), func(b *testing.B) {
+				b.Run(fmt.Sprintf("Part %d", part), func(b *testing.B) {
 					b.ReportAllocs()
 					for i := 0; i < b.N; i++ {
-						input := aocutil.GetInput(dayNum)
-						days[dayNum](part == 2, input)
-						input.Close()
+						inputReader.Reset(inputBytes)
+						days[dayNum](part == 2, inputReader)
 					}
 				})
 			}
