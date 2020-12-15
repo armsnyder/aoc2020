@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"strconv"
+	"strings"
 )
 
 func ReadAllInts(inputReader io.Reader) []int {
@@ -43,6 +44,15 @@ func Read2DByteArray(inputReader io.Reader) [][]byte {
 			copy(row, scanner.Bytes())
 			result = append(result, row)
 		}
+	}
+	return result
+}
+
+func ReadAllCommaSeparatedInts(inputReader io.Reader) []int {
+	split := strings.Split(ReadAllStrings(inputReader)[0], ",")
+	result := make([]int, len(split))
+	for i, s := range split {
+		result[i], _ = strconv.Atoi(s)
 	}
 	return result
 }
