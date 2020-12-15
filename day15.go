@@ -15,19 +15,21 @@ var _ = declareDay(15, func(part2 bool, inputReader io.Reader) interface{} {
 
 func day15(inputReader io.Reader, n int) int {
 	starter := aocutil.ReadAllCommaSeparatedInts(inputReader)
-	memory := make(map[int]int)
 
-	for turn := 0; turn < len(starter)-1; turn++ {
-		memory[starter[turn]] = turn
+	// Keep track of previous turn (1-indexed) where each number was seen.
+	memory := make([]int, n)
+
+	for turn := 1; turn < len(starter); turn++ {
+		memory[starter[turn-1]] = turn
 	}
 
 	prevNumber := starter[len(starter)-1]
 
-	for turn := len(starter); turn < n; turn++ {
+	for turn := len(starter) + 1; turn <= n; turn++ {
 		prevTurn := turn - 1
 		var number int
 
-		if prevPrevTurn, ok := memory[prevNumber]; ok {
+		if prevPrevTurn := memory[prevNumber]; prevPrevTurn > 0 {
 			number = prevTurn - prevPrevTurn
 		}
 
