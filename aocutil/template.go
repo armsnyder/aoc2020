@@ -56,8 +56,6 @@ func day%02[1]dPart2(inputReader io.Reader) interface{} {
 	if _, err := fmt.Fprintf(test, `package main
 
 import (
-	"io"
-	"io/ioutil"
 	"testing"
 
 	"github.com/armsnyder/aoc2020/aocutil"
@@ -80,16 +78,6 @@ func TestDay%02[1]dPart2(t *testing.T) {
 			want:  nil,
 		},
 	})
-}
-
-func BenchmarkDay%02[1]dBaselineIO(b *testing.B) {
-	day := %[1]d
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		io.Copy(ioutil.Discard, input)
-		input.Close()
-	}
 }
 
 func BenchmarkDay%02[1]dPart1(b *testing.B) {

@@ -1,9 +1,13 @@
 package main
 
 import (
+	"io"
+	"io/ioutil"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/armsnyder/aoc2020/aocutil"
 )
 
 type dayTest struct {
@@ -21,5 +25,15 @@ func runDayTests(t *testing.T, day int, tests []dayTest) {
 				t.Errorf("day%02d(%v, ...) = %v, want %v", day, tt.part2, got, tt.want)
 			}
 		})
+	}
+}
+
+func BenchmarkBaselineIO(b *testing.B) {
+	day := 1
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		input := aocutil.GetInput(day)
+		io.Copy(ioutil.Discard, input)
+		input.Close()
 	}
 }

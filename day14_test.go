@@ -1,8 +1,6 @@
 package main
 
 import (
-	"io"
-	"io/ioutil"
 	"testing"
 
 	"github.com/armsnyder/aoc2020/aocutil"
@@ -35,16 +33,6 @@ mem[26] = 1
 			want: int64(208),
 		},
 	})
-}
-
-func BenchmarkDay14BaselineIO(b *testing.B) {
-	day := 14
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		io.Copy(ioutil.Discard, input)
-		input.Close()
-	}
 }
 
 func BenchmarkDay14Part1(b *testing.B) {

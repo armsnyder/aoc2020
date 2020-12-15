@@ -1,8 +1,6 @@
 package main
 
 import (
-	"io"
-	"io/ioutil"
 	"strings"
 	"testing"
 
@@ -66,16 +64,6 @@ func TestDay09Part2(t *testing.T) {
 	want := 62
 	if got != want {
 		t.Errorf("day09Part1() = %v, want %v", got, want)
-	}
-}
-
-func BenchmarkDay09BaselineIO(b *testing.B) {
-	day := 9
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		input := aocutil.GetInput(day)
-		io.Copy(ioutil.Discard, input)
-		input.Close()
 	}
 }
 
