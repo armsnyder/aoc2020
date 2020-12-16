@@ -81,18 +81,17 @@ nearby tickets:
 class: 0-1 or 4-19
 row: 0-5 or 8-19
 seat: 0-13 or 16-19
-aaa: 14-15 or 18-20
 
 your ticket:
-11,12,13,5
+11,12,13
 
 nearby tickets:
-3,9,18,15
-15,1,5,18
-5,14,9,19
+3,9,18
+15,1,5
+5,14,9
 `)},
-			want:  []string{"row", "class", "seat", "aaa"},
-			want1: []int{11, 12, 13, 5},
+			want:  []string{"row", "class", "seat"},
+			want1: []int{11, 12, 13},
 		},
 	}
 	for _, tt := range tests {
