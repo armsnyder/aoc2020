@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"reflect"
 	"strings"
 	"testing"
@@ -29,38 +28,8 @@ nearby tickets:
 	})
 }
 
-//func TestDay16Part2(t *testing.T) {
-//	got, _ := day16Part2(strings.NewReader(`
-//class: 0-1 or 4-19
-//row: 0-5 or 8-19
-//seat: 0-13 or 16-19
-//
-//your ticket:
-//11,12,13
-//
-//nearby tickets:
-//3,9,18
-//15,1,5
-//5,14,9
-//`))
-//	want := []string{"row", "class", "seat"}
-//	if !reflect.DeepEqual(want, got) {
-//		t.Errorf("got=%v, want=%v", got, want)
-//	}
-//}
-
-func Test_day16Part2(t *testing.T) {
-	type args struct {
-		inputReader io.Reader
-	}
-	tests := []struct {
-		name  string
-		args  args
-		want  []string
-		want1 []int
-	}{
-		{
-			args: args{inputReader: strings.NewReader(`
+func TestDay16Part2(t *testing.T) {
+	inputReader := strings.NewReader(`
 class: 0-1 or 4-19
 row: 0-5 or 8-19
 seat: 0-13 or 16-19
@@ -72,37 +41,18 @@ nearby tickets:
 3,9,18
 15,1,5
 5,14,9
-`)},
-			want:  []string{"row", "class", "seat"},
-			want1: []int{11, 12, 13},
-		},
-		{
-			args: args{inputReader: strings.NewReader(`
-class: 0-1 or 4-19
-row: 0-5 or 8-19
-seat: 0-13 or 16-19
+`)
 
-your ticket:
-11,12,13
+	sortedFields, yourTicket := day16MatchFieldsOnYourTicket(inputReader)
 
-nearby tickets:
-3,9,18
-15,1,5
-5,14,9
-`)},
-			want:  []string{"row", "class", "seat"},
-			want1: []int{11, 12, 13},
-		},
+	wantSortedFields := []string{"row", "class", "seat"}
+	wantYourTicket := day16Ticket{11, 12, 13}
+
+	if !reflect.DeepEqual(sortedFields, wantSortedFields) {
+		t.Errorf("sortedFields: got %v; wanted %v", sortedFields, wantSortedFields)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := day16Part2(tt.args.inputReader)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("day16Part2() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("day16Part2() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
+
+	if !reflect.DeepEqual(yourTicket, wantYourTicket) {
+		t.Errorf("yourTicket: got %v; wanted %v", yourTicket, wantYourTicket)
 	}
 }

@@ -10,45 +10,66 @@ import (
 
 var _ = declareDay(16, func(part2 bool, inputReader io.Reader) interface{} {
 	if part2 {
-		sortedRuleNames, yourTicket := day16Part2(inputReader)
-		result := 1
-
-		for i, ruleName := range sortedRuleNames {
-			if strings.HasPrefix(ruleName, "departure") {
-				result *= yourTicket[i]
-			}
-		}
-
-		return result
+		return day16Part2(inputReader)
 	}
-
 	return day16Part1(inputReader)
 })
 
 func day16Part1(inputReader io.Reader) interface{} {
 	_, rules, _, nearbyTickets := day16Parse(inputReader)
-
 	errorRate := 0
-
 	for _, ticket := range nearbyTickets {
-		day16ValidateTicket(ticket, rules, func(value int) {
+		if value := day16ValidateTicket(ticket, rules); value > -1 {
 			errorRate += value
-		})
+		}
 	}
-
 	return errorRate
 }
 
-func day16Part2(inputReader io.Reader) ([]string, []int) {
-	fields, rules, yourTicket, nearbyTickets := day16Parse(inputReader)
-	validTickets := [][]int{yourTicket}
+func day16Part2(inputReader io.Reader) interface{} {
+	sortedFields, yourTicket := day16MatchFieldsOnYourTicket(inputReader)
+	result := 1
+	for i, field := range sortedFields {
+		if strings.HasPrefix(field, "departure") {
+			result *= yourTicket[i]
+		}
+	}
+	return result
+}
 
+func day16MatchFieldsOnYourTicket(inputReader io.Reader) ([]string, day16Ticket) {
+	fields, rules, yourTicket, nearbyTickets := day16Parse(inputReader)
+	validTickets := day16OnlyValidTickets(rules, yourTicket, nearbyTickets)
+	sortedFields := day16SortFields(fields, rules, validTickets)
+	return sortedFields, yourTicket
+}
+
+// day16ValidateTicket returns -1 if the ticket can possibly be valid given the rules.
+// Otherwise it returns the value in the ticket for which no rule can apply.
+func day16ValidateTicket(ticket day16Ticket, rules []day16Rule) int {
+outer:
+	for _, value := range ticket {
+		for _, rule := range rules {
+			if rule.check(value) {
+				continue outer
+			}
+		}
+		return value
+	}
+	return -1
+}
+
+func day16OnlyValidTickets(rules []day16Rule, yourTicket day16Ticket, nearbyTickets []day16Ticket) []day16Ticket {
+	validTickets := []day16Ticket{yourTicket}
 	for _, ticket := range nearbyTickets {
-		if day16ValidateTicket(ticket, rules) {
+		if value := day16ValidateTicket(ticket, rules); value == -1 {
 			validTickets = append(validTickets, ticket)
 		}
 	}
+	return validTickets
+}
 
+func day16SortFields(fields []string, rules []day16Rule, validTickets []day16Ticket) []string {
 	indexFieldCandidates := make([][]int, len(fields))
 
 	for i := range fields {
@@ -68,25 +89,8 @@ func day16Part2(inputReader io.Reader) ([]string, []int) {
 	}
 
 	for len(queue) > 0 {
-		fieldToCheck := queue[0]
-		queue = queue[1:]
-
-		for i := range indexFieldCandidates {
-			if len(indexFieldCandidates[i]) == 1 {
-				continue
-			}
-
-			for j, field := range indexFieldCandidates[i] {
-				if field == fieldToCheck {
-					indexFieldCandidates[i] = append(indexFieldCandidates[i][:j], indexFieldCandidates[i][j+1:]...)
-					break
-				}
-			}
-
-			if len(indexFieldCandidates[i]) == 1 {
-				queue = append(queue, indexFieldCandidates[i][0])
-			}
-		}
+		solvedField := queue[0]
+		queue = append(queue[1:], day16ApplyConstraint(indexFieldCandidates, solvedField)...)
 	}
 
 	sortedFields := make([]string, len(fields))
@@ -94,32 +98,10 @@ func day16Part2(inputReader io.Reader) ([]string, []int) {
 		sortedFields[i] = fields[candidates[0]]
 	}
 
-	return sortedFields, yourTicket
+	return sortedFields
 }
 
-func day16ValidateTicket(ticket []int, rules []day16Rule, onInvalidValue ...func(int)) bool {
-	valid := true
-
-outer:
-	for _, value := range ticket {
-		for _, rule := range rules {
-			if rule.check(value) {
-				continue outer
-			}
-		}
-
-		if len(onInvalidValue) == 0 {
-			return false
-		}
-
-		valid = false
-		onInvalidValue[0](value)
-	}
-
-	return valid
-}
-
-func day16CheckRuleIndex(rule day16Rule, tickets [][]int, index int) bool {
+func day16CheckRuleIndex(rule day16Rule, tickets []day16Ticket, index int) bool {
 	for _, ticket := range tickets {
 		if !rule.check(ticket[index]) {
 			return false
@@ -129,13 +111,36 @@ func day16CheckRuleIndex(rule day16Rule, tickets [][]int, index int) bool {
 	return true
 }
 
+func day16ApplyConstraint(indexFieldCandidates [][]int, solvedField int) (newlySolvedFields []int) {
+	for i := range indexFieldCandidates {
+		if len(indexFieldCandidates[i]) == 1 {
+			continue
+		}
+
+		for j, field := range indexFieldCandidates[i] {
+			if field == solvedField {
+				indexFieldCandidates[i] = append(indexFieldCandidates[i][:j], indexFieldCandidates[i][j+1:]...)
+				break
+			}
+		}
+
+		if len(indexFieldCandidates[i]) == 1 {
+			newlySolvedFields = append(newlySolvedFields, indexFieldCandidates[i][0])
+		}
+	}
+
+	return newlySolvedFields
+}
+
 type day16Rule [4]int
 
 func (r day16Rule) check(v int) bool {
 	return v >= r[0] && v <= r[1] || v >= r[2] && v <= r[3]
 }
 
-func day16Parse(inputReader io.Reader) (fields []string, rules []day16Rule, yourTicket []int, nearbyTickets [][]int) {
+type day16Ticket []int
+
+func day16Parse(inputReader io.Reader) (fields []string, rules []day16Rule, yourTicket day16Ticket, nearbyTickets []day16Ticket) {
 	section := 0
 
 	aocutil.VisitStrings(inputReader, func(v string) {
@@ -175,9 +180,9 @@ func day16Parse(inputReader io.Reader) (fields []string, rules []day16Rule, your
 	return fields, rules, yourTicket, nearbyTickets
 }
 
-func day16ParseTicket(v string) []int {
+func day16ParseTicket(v string) day16Ticket {
 	split := strings.Split(v, ",")
-	ticket := make([]int, len(split))
+	ticket := make(day16Ticket, len(split))
 	for i, s := range split {
 		ticket[i], _ = strconv.Atoi(s)
 	}
