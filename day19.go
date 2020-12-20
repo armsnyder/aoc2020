@@ -19,17 +19,80 @@ var _ = declareDay(19, func(part2 bool, inputReader io.Reader) interface{} {
 	total := 0
 
 	for _, message := range messages {
-		matches := ruleSet.match(message, 0, 0, len(message))
-		for _, match := range matches {
-			if match == len(message) {
-				total++
-				break
-			}
+		if ruleSet.matchRuleZero(message) {
+			total++
 		}
 	}
 
 	return total
 })
+
+type day19Rule struct {
+	literal  byte
+	children [][]int
+}
+
+type day19RuleSet map[int]day19Rule
+
+func (r day19RuleSet) matchRuleZero(s string) bool {
+	matches := r.findAllMatches(s, 0, 0, len(s))
+	for _, match := range matches {
+		if match == len(s) {
+			return true
+		}
+	}
+	return false
+}
+
+func (r day19RuleSet) findAllMatches(s string, rid, depth, maxDepth int) (result []int) {
+	if s == "" {
+		return nil
+	}
+
+	if depth > maxDepth {
+		return nil
+	}
+
+	depth++
+
+	rule := r[rid]
+
+	if rule.children == nil {
+		if s[0] == rule.literal {
+			return []int{1}
+		}
+		return nil
+	}
+
+	type job struct {
+		partIndex  int
+		matchSoFar int
+	}
+
+	for _, child := range rule.children {
+		stack := []job{{}}
+
+		for len(stack) > 0 {
+			cur := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+
+			if cur.partIndex == len(child) {
+				result = append(result, cur.matchSoFar)
+				continue
+			}
+
+			matches := r.findAllMatches(s[cur.matchSoFar:], child[cur.partIndex], depth, maxDepth)
+			for _, match := range matches {
+				stack = append(stack, job{
+					partIndex:  cur.partIndex + 1,
+					matchSoFar: cur.matchSoFar + match,
+				})
+			}
+		}
+	}
+
+	return result
+}
 
 func day19Parse(inputReader io.Reader) (ruleSet day19RuleSet, messages []string) {
 	ruleSet = make(day19RuleSet)
@@ -44,7 +107,7 @@ func day19Parse(inputReader io.Reader) (ruleSet day19RuleSet, messages []string)
 				}
 
 				if strings.HasPrefix(split1[1], `"`) {
-					ruleSet[ruleID] = day19Rule{literal: strings.Trim(split1[1], `"`)}
+					ruleSet[ruleID] = day19Rule{literal: strings.Trim(split1[1], `"`)[0]}
 					continue
 				}
 
@@ -73,78 +136,4 @@ func day19Parse(inputReader io.Reader) (ruleSet day19RuleSet, messages []string)
 	})
 
 	return ruleSet, messages
-}
-
-type day19Rule struct {
-	literal  string
-	children [][]int
-}
-
-type day19RuleSet map[int]day19Rule
-
-func (r day19RuleSet) match(s string, rid, depth, maxDepth int) (resultList []int) {
-	if depth > maxDepth {
-		return nil
-	}
-
-	if s == "" {
-		return nil
-	}
-
-	rule := r[rid]
-
-	if rule.children == nil {
-		if strings.HasPrefix(s, rule.literal) {
-			return []int{len(rule.literal)}
-		}
-		return nil
-	}
-
-	type job struct {
-		partIndex  int
-		matchSoFar int
-	}
-
-	resultSet := make(map[int]bool)
-
-	depth++
-
-	for _, child := range rule.children {
-		seenJobs := make(map[job]bool)
-		stack := []job{{}}
-
-		for len(stack) > 0 {
-			cur := stack[len(stack)-1]
-			stack = stack[:len(stack)-1]
-
-			if seenJobs[cur] {
-				continue
-			}
-			seenJobs[cur] = true
-
-			if cur.partIndex == len(child) {
-				resultSet[cur.matchSoFar] = true
-				continue
-			}
-
-			matches := r.match(s[cur.matchSoFar:], child[cur.partIndex], depth, maxDepth)
-			for _, match := range matches {
-				stack = append(stack, job{
-					partIndex:  cur.partIndex + 1,
-					matchSoFar: cur.matchSoFar + match,
-				})
-			}
-		}
-	}
-
-	if len(resultSet) == 0 {
-		return nil
-	}
-
-	resultList = make([]int, 0, len(resultSet))
-	for result := range resultSet {
-		resultList = append(resultList, result)
-	}
-
-	return resultList
 }

@@ -85,250 +85,137 @@ aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
 	})
 }
 
-func Test_day19RuleSet_match(t *testing.T) {
+func Test_day19RuleSet_matchRuleZero(t *testing.T) {
 	type args struct {
-		s        string
-		rid      int
-		depth    int
-		maxDepth int
+		s string
 	}
 	tests := []struct {
-		name string
-		r    day19RuleSet
-		args args
-		want []int
+		name    string
+		ruleSet day19RuleSet
+		message string
+		want    bool
 	}{
 		{
-			name: "one char ok",
-			r: day19RuleSet{
+			name: "one literal ok",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1}}},
-				1: day19Rule{literal: "a"},
+				1: day19Rule{literal: 'a'},
 			},
-			args: args{
-				s:        "a",
-				maxDepth: 10,
-			},
-			want: []int{1},
+			message: "a",
+			want:    true,
 		},
 		{
-			name: "one char bad",
-			r: day19RuleSet{
+			name: "one literal bad",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1}}},
-				1: day19Rule{literal: "a"},
+				1: day19Rule{literal: 'a'},
 			},
-			args: args{
-				s:        "b",
-				maxDepth: 10,
-			},
+			message: "b",
+			want:    false,
 		},
 		{
-			name: "one other char bad",
-			r: day19RuleSet{
-				0: day19Rule{children: [][]int{{1}}},
-				1: day19Rule{literal: "b"},
-			},
-			args: args{
-				s:        "a",
-				maxDepth: 10,
-			},
-		},
-		{
-			name: "two chars ok",
-			r: day19RuleSet{
+			name: "two literals ok",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1, 2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 			},
-			args: args{
-				s:        "ab",
-				maxDepth: 10,
-			},
-			want: []int{2},
+			message: "ab",
+			want:    true,
 		},
 		{
-			name: "two chars bad",
-			r: day19RuleSet{
+			name: "two literals bad",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1, 2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 			},
-			args: args{
-				s:        "ba",
-				maxDepth: 10,
-			},
+			message: "ba",
+			want:    false,
 		},
 		{
-			name: "direct indirect ok",
-			r: day19RuleSet{
+			name: "literal then complex ok",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1, 3}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 				3: day19Rule{children: [][]int{{1, 2}}},
 			},
-			args: args{
-				s:        "aab",
-				maxDepth: 10,
-			},
-			want: []int{3},
+			message: "aab",
+			want:    true,
 		},
 		{
-			name: "direct indirect bad",
-			r: day19RuleSet{
+			name: "literal then complex bad",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1, 3}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 				3: day19Rule{children: [][]int{{1, 2}}},
 			},
-			args: args{
-				s:        "abb",
-				maxDepth: 10,
-			},
+			message: "abb",
+			want:    false,
 		},
 		{
-			name: "indirect direct ok",
-			r: day19RuleSet{
+			name: "complex then literal ok",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{3, 1}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 				3: day19Rule{children: [][]int{{1, 2}}},
 			},
-			args: args{
-				s:        "aba",
-				maxDepth: 10,
-			},
-			want: []int{3},
+			message: "aba",
+			want:    true,
 		},
 		{
-			name: "indirect direct bad",
-			r: day19RuleSet{
+			name: "complex then literal bad",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{3, 1}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 				3: day19Rule{children: [][]int{{1, 2}}},
 			},
-			args: args{
-				s:        "abb",
-				maxDepth: 10,
-			},
+			message: "abb",
+			want:    false,
 		},
 		{
-			name: "or directs true",
-			r: day19RuleSet{
+			name: "or literals true a",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1}, {2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 			},
-			args: args{
-				s:        "a",
-				maxDepth: 10,
-			},
-			want: []int{1},
+			message: "a",
+			want:    true,
 		},
 		{
-			name: "or directs other true",
-			r: day19RuleSet{
+			name: "or literals true b",
+			ruleSet: day19RuleSet{
 				0: day19Rule{children: [][]int{{1}, {2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
+				1: day19Rule{literal: 'a'},
+				2: day19Rule{literal: 'b'},
 			},
-			args: args{
-				s:        "b",
-				maxDepth: 10,
-			},
-			want: []int{1},
+			message: "b",
+			want:    true,
 		},
 		{
 			name: "loop ok",
-			r: day19RuleSet{
-				0: day19Rule{children: [][]int{{3, 2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
-				3: day19Rule{children: [][]int{{1}, {3, 1}}},
-			},
-			args: args{
-				s:        "ab",
-				maxDepth: 10,
-			},
-			want: []int{2},
-		},
-		{
-			name: "loop ok with max depth",
-			r: day19RuleSet{
-				0: day19Rule{children: [][]int{{3, 2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
-				3: day19Rule{children: [][]int{{1}, {3, 1}}},
-			},
-			args: args{
-				s:        "ab",
-				maxDepth: 2,
-			},
-			want: []int{2},
-		},
-		{
-			name: "loop ok other",
-			r: day19RuleSet{
-				0: day19Rule{children: [][]int{{3, 2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
-				3: day19Rule{children: [][]int{{1}, {3, 1}}},
-			},
-			args: args{
-				s:        "aaaaab",
-				maxDepth: 10,
-			},
-			want: []int{6},
-		},
-		{
-			name: "loop ok other with max depth",
-			r: day19RuleSet{
-				0: day19Rule{children: [][]int{{3, 2}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
-				3: day19Rule{children: [][]int{{1}, {3, 1}}},
-			},
-			args: args{
-				s:        "aaaaab",
-				maxDepth: 6,
-			},
-			want: []int{6},
-		},
-		{
-			name: "loop ok crazy with max depth",
-			r: day19RuleSet{
-				0: day19Rule{children: [][]int{{3}}},
-				1: day19Rule{literal: "a"},
-				2: day19Rule{literal: "b"},
-				3: day19Rule{children: [][]int{{1, 2}, {1, 3, 2}}},
-			},
-			args: args{
-				s:        "aaaaaaabbbbbbb",
-				maxDepth: 14,
-			},
-			want: []int{14},
-		},
-		{
-			name: "loop ok crazy with max depth 2",
-			r: day19RuleSet{
+			ruleSet: day19RuleSet{
 				0:  day19Rule{children: [][]int{{2, 8, 11, 2, 2}}},
 				8:  day19Rule{children: [][]int{{42}, {42, 8}}},
 				11: day19Rule{children: [][]int{{42, 31}, {42, 11, 31}}},
 				42: day19Rule{children: [][]int{{1, 1, 2}}},
 				31: day19Rule{children: [][]int{{2, 1, 2}}},
-				1:  day19Rule{literal: "a"},
-				2:  day19Rule{literal: "b"},
+				1:  day19Rule{literal: 'a'},
+				2:  day19Rule{literal: 'b'},
 			},
-			args: args{
-				s:        "baabaabaabaabaabaabaabaabbabbabbabbb",
-				maxDepth: 36,
-			},
-			want: []int{36},
+			message: "baabaabaabaabaabaabaabaabbabbabbabbb",
+			want:    true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.r.match(tt.args.s, tt.args.rid, tt.args.depth, tt.args.maxDepth); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("match() = %v, want %v", got, tt.want)
+			if got := tt.ruleSet.matchRuleZero(tt.message); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("matchRuleZero() = %v, want %v", got, tt.want)
 			}
 		})
 	}
