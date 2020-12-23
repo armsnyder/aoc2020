@@ -17,199 +17,144 @@ var _ = declareDay(23, func(part2 bool, inputReader io.Reader) interface{} {
 })
 
 func day23Part1(inputReader io.Reader) interface{} {
-	game := day23Parse(inputReader)
+	game := day23Parse(inputReader, false)
 
-	var removed [3]int
-	var chainStart *day23Cup
-	var chainEnd *day23Cup
-	for move := 0; move < 100; move++ {
-		toRemove := game.cur.next
-		for i := 0; i < 3; i++ {
-			if i == 0 {
-				chainStart = toRemove
-			} else if i == 2 {
-				chainEnd = toRemove
-			}
-			removed[i] = toRemove.value
-			toRemove = toRemove.next
-		}
-		var destination *day23Cup
-	countdown:
-		for i := game.cur.value - 1; i >= game.min; i-- {
-			if cup, ok := game.lookup[i]; ok {
-				for _, v := range removed {
-					if v == i {
-						continue countdown
-					}
-				}
-				destination = cup
-				break
-			}
-		}
-		if destination == nil {
-		countdown2:
-			for i := game.max; ; i-- {
-				if cup, ok := game.lookup[i]; ok {
-					for _, v := range removed {
-						if v == i {
-							continue countdown2
-						}
-					}
-					destination = cup
-					break
-				}
-			}
-		}
-		oldChainEndNext := chainEnd.next
-		oldDestNext := destination.next
-		destination.next = chainStart
-		chainStart.prev = destination
-		oldDestNext.prev = chainEnd
-		chainEnd.next = oldDestNext
-		game.cur.next = oldChainEndNext
-		oldChainEndNext.prev = game.cur
-		game.cur = oldChainEndNext
-	}
+	game.play(100)
 
 	var sb strings.Builder
-
-	cur := game.lookup[1].next
-	for i := 1; i < game.len; i++ {
+	for cur := game.lookup[1].next; cur.value != 1; cur = cur.next {
 		sb.WriteString(strconv.Itoa(cur.value))
-		cur = cur.next
 	}
-
 	return sb.String()
 }
 
 func day23Part2(inputReader io.Reader) interface{} {
-	game := day23Parse2(inputReader)
+	game := day23Parse(inputReader, true)
 
-	var removed [3]int
-	var chainStart *day23Cup
-	var chainEnd *day23Cup
-	for move := 0; move < 10_000_000; move++ {
-		toRemove := game.cur.next
-		for i := 0; i < 3; i++ {
-			if i == 0 {
-				chainStart = toRemove
-			} else if i == 2 {
-				chainEnd = toRemove
-			}
-			removed[i] = toRemove.value
-			toRemove = toRemove.next
-		}
-		var destination *day23Cup
-	countdown:
-		for i := game.cur.value - 1; i >= game.min; i-- {
-			if cup, ok := game.lookup[i]; ok {
-				for _, v := range removed {
-					if v == i {
-						continue countdown
-					}
-				}
-				destination = cup
-				break
-			}
-		}
-		if destination == nil {
-		countdown2:
-			for i := game.max; ; i-- {
-				if cup, ok := game.lookup[i]; ok {
-					for _, v := range removed {
-						if v == i {
-							continue countdown2
-						}
-					}
-					destination = cup
-					break
-				}
-			}
-		}
-		oldChainEndNext := chainEnd.next
-		oldDestNext := destination.next
-		destination.next = chainStart
-		chainStart.prev = destination
-		oldDestNext.prev = chainEnd
-		chainEnd.next = oldDestNext
-		game.cur.next = oldChainEndNext
-		oldChainEndNext.prev = game.cur
-		game.cur = oldChainEndNext
-	}
+	game.play(10_000_000)
 
 	return game.lookup[1].next.value * game.lookup[1].next.next.value
 }
 
+func day23Parse(inputReader io.Reader, part2 bool) *day23Game {
+	game := &day23Game{
+		lookup: make(map[int]*day23Cup),
+		max:    math.MinInt32,
+		min:    math.MaxInt32,
+	}
+
+	input := aocutil.ReadAllStrings(inputReader)[0]
+	for _, ch := range input {
+		game.addNewCup(int(ch - '0'))
+	}
+
+	if part2 {
+		for i := game.max + 1; i <= 1_000_000; i++ {
+			game.addNewCup(i)
+		}
+	}
+
+	return game
+}
+
+// day23Game contains the game state.
+type day23Game struct {
+	// head points to the current cup in the doubly-lined list.
+	head *day23Cup
+
+	// lookup can look up any cup in the game by its value.
+	lookup map[int]*day23Cup
+
+	// max is the maximum cup value in the game.
+	max int
+
+	// min is the minimum cup value in the game.
+	min int
+}
+
+// play plays the provided number of rounds of the game.
+func (g *day23Game) play(rounds int) {
+	var removed [3]*day23Cup
+
+	for i := 0; i < rounds; i++ {
+		g.head.removeNextN(removed[:])
+		dest := g.findNextLowestCup(removed[:])
+		dest.append(removed[:]...)
+		g.head = g.head.next
+	}
+}
+
+// addNewCup is used when building the game to register a new cup and add it before the head.
+func (g *day23Game) addNewCup(value int) {
+	cup := &day23Cup{value: value}
+
+	g.lookup[value] = cup
+
+	if g.head == nil {
+		g.head = cup
+		cup.next = cup
+		cup.prev = cup
+	} else {
+		g.head.prev.append(cup)
+	}
+
+	if value > g.max {
+		g.max = value
+	}
+
+	if value < g.min {
+		g.min = value
+	}
+}
+
+// findNextLowestCup finds the cup with the next lowest value than the head. It will not choose a
+// cup if it is contained in the provided ignoreList.
+func (g *day23Game) findNextLowestCup(ignoreList []*day23Cup) *day23Cup {
+outer:
+	for i := g.head.value - 1; ; i-- {
+		if i < g.min {
+			i = g.max
+		}
+
+		for _, ignoredCup := range ignoreList {
+			if i == ignoredCup.value {
+				continue outer
+			}
+		}
+
+		return g.lookup[i]
+	}
+}
+
+// day23Cup is a node in a doubly linked list.
 type day23Cup struct {
 	next  *day23Cup
 	prev  *day23Cup
 	value int
 }
 
-type day23Game struct {
-	cur    *day23Cup
-	lookup map[int]*day23Cup
-	max    int
-	min    int
-	len    int
+// append appends one or more cups after this cup.
+func (c *day23Cup) append(cups ...*day23Cup) {
+	first := cups[0]
+	last := cups[len(cups)-1]
+
+	c.next, c.next.prev, last.next, first.prev = first, last, c.next, c
 }
 
-func (g *day23Game) add(value int) {
-	g.len++
-	cup := &day23Cup{value: value}
-	g.lookup[value] = cup
-	if g.cur == nil {
-		g.cur = cup
-		cup.next = cup
-		cup.prev = cup
-	} else {
-		prevPrev := g.cur.prev
-		prevPrev.next = cup
-		g.cur.prev = cup
-		cup.next = g.cur
-		cup.prev = prevPrev
+// removeNextN removes a number of cups after this cup, equal to the length of the provided slice,
+// and populates the slice with the removed cups.
+func (c *day23Cup) removeNextN(dest []*day23Cup) {
+	cur := c.next
+	for i := 0; i < len(dest); i++ {
+		dest[i] = cur
+		cur = cur.next
 	}
-	if value > g.max {
-		g.max = value
-	}
-	if value < g.min {
-		g.min = value
-	}
-}
 
-func day23Parse(inputReader io.Reader) *day23Game {
-	game := &day23Game{
-		lookup: make(map[int]*day23Cup),
-		max:    math.MinInt32,
-		min:    math.MaxInt32,
-	}
-	input := aocutil.ReadAllStrings(inputReader)[0]
-	for _, ch := range input {
-		value, err := strconv.Atoi(string(ch))
-		if err != nil {
-			panic(err)
-		}
-		game.add(value)
-	}
-	return game
-}
+	last := dest[len(dest)-1]
 
-func day23Parse2(inputReader io.Reader) *day23Game {
-	game := &day23Game{
-		lookup: make(map[int]*day23Cup),
-		max:    math.MinInt32,
-		min:    math.MaxInt32,
-	}
-	input := aocutil.ReadAllStrings(inputReader)[0]
-	for _, ch := range input {
-		value, err := strconv.Atoi(string(ch))
-		if err != nil {
-			panic(err)
-		}
-		game.add(value)
-	}
-	for i := game.max + 1; i <= 1_000_000; i++ {
-		game.add(i)
-	}
-	return game
+	c.next = last.next
+	last.prev = c
+
+	dest[0].prev = nil
+	last.next = nil
 }
