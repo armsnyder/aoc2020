@@ -69,8 +69,8 @@ Benchmark/Day_22/Part_1-16  	   88674	     13334 ns/op	    7088 B/op	     109 al
 Benchmark/Day_22/Part_2-16  	       3	 431546153 ns/op	524906960 B/op	  495514 allocs/op
 Benchmark/Day_23/Part_1-16  	  228391	      5358 ns/op	    4952 B/op	      18 allocs/op
 Benchmark/Day_23/Part_2-16  	       1	2671827892 ns/op	117743264 B/op	 1038187 allocs/op
-Benchmark/Day_24/Part_1-16  	    7231	    163882 ns/op	   47232 B/op	     510 allocs/op
-Benchmark/Day_24/Part_2-16  	       7	 157721256 ns/op	23839570 B/op	   26148 allocs/op
+Benchmark/Day_24/Part_1-16  	    8686	    140590 ns/op	   47238 B/op	     510 allocs/op
+Benchmark/Day_24/Part_2-16  	       7	 157364913 ns/op	23845218 B/op	   26217 allocs/op
 PASS
 ok  	github.com/armsnyder/aoc2020	72.152s
 ```

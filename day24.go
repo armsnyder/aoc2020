@@ -28,48 +28,50 @@ func day24Part2(inputReader io.Reader) interface{} {
 func day24InitialBlackTiles(inputReader io.Reader) map[day24Coord]bool {
 	blackTiles := make(map[day24Coord]bool)
 
-	aocutil.VisitStrings(inputReader, func(v string) {
-		var pos day24Coord
+	aocutil.VisitStrings(inputReader, func(directions string) {
+		tile := day24FollowDirectionsToTile(directions)
 
-		day24VisitDirections(v, func(dir day24Coord) {
-			pos = pos.plus(dir)
-		})
-
-		if _, ok := blackTiles[pos]; ok {
-			delete(blackTiles, pos)
+		if _, ok := blackTiles[tile]; ok {
+			delete(blackTiles, tile)
 		} else {
-			blackTiles[pos] = true
+			blackTiles[tile] = true
 		}
 	})
 
 	return blackTiles
 }
 
-func day24VisitDirections(v string, f func(dir day24Coord)) {
-	for i := 0; i < len(v); i++ {
-		switch v[i] {
+func day24FollowDirectionsToTile(directions string) day24Coord {
+	var result day24Coord
+
+	for i := 0; i < len(directions); i++ {
+		switch directions[i] {
 		case 'n':
-			switch v[i+1] {
+			switch directions[i+1] {
 			case 'e':
-				f(day24Coord{x: 1, y: -1})
+				result.x++
+				result.y--
 			case 'w':
-				f(day24Coord{y: -1})
+				result.y--
 			}
 			i++
 		case 's':
-			switch v[i+1] {
+			switch directions[i+1] {
 			case 'e':
-				f(day24Coord{y: 1})
+				result.y++
 			case 'w':
-				f(day24Coord{x: -1, y: 1})
+				result.x--
+				result.y++
 			}
 			i++
 		case 'e':
-			f(day24Coord{x: 1})
+			result.x++
 		case 'w':
-			f(day24Coord{x: -1})
+			result.x--
 		}
 	}
+
+	return result
 }
 
 func day24DoArt(blackTiles map[day24Coord]bool) {
