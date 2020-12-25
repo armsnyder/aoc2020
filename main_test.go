@@ -47,6 +47,10 @@ func Benchmark(b *testing.B) {
 			inputReader := bytes.NewReader(inputBytes)
 
 			for part := 1; part <= 2; part++ {
+				if dayNum == 25 && part == 2 {
+					continue
+				}
+
 				b.Run(fmt.Sprintf("Part %d", part), func(b *testing.B) {
 					b.ReportAllocs()
 					for i := 0; i < b.N; i++ {
